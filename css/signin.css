@@ -39,3 +39,18 @@ body h1{
     vertical-align: middle;
     margin-right: 5px;
 }
+
+.register-box {
+    display: flex;
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.register-box .signup-button {
+    font-family: Arial, sans-serif;
+    padding: 8px 16px;
+    border: none;
+    background-color: transparent;
+    font-size: 14px;
+    cursor: pointer;
+}
