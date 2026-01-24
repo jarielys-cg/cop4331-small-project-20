@@ -1,0 +1,56 @@
+body h1{
+    text-align: center;
+    margin-top: 50px;
+    margin-bottom: 30px;
+    font-family: Arial, sans-serif;
+}
+
+.login-box {
+    width: 300px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+}
+
+.username-entry, .password-entry {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.username-entry label, .password-entry label {
+    display: flex;
+    align-items: center;
+    width: 70px;
+}
+
+.username-entry input, .password-entry input {
+    padding: 4px;
+    margin-left: 10px;
+    flex-grow: 1;
+}
+
+.username-icon, .password-icon {
+    width: 20px;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+.register-box {
+    display: flex;
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.register-box .signup-button {
+    font-family: Arial, sans-serif;
+    padding: 8px 16px;
+    border: none;
+    background-color: transparent;
+    font-size: 14px;
+    cursor: pointer;
+}
