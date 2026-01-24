@@ -34,10 +34,16 @@ body h1{
     flex-grow: 1;
 }
 
-.username-icon, .password-icon {
-    width: 20px;
-    vertical-align: middle;
-    margin-right: 5px;
+.register-button {
+    font-family: Arial, sans-serif;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 3px;
+    background-color: #218fbb;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 10px;
 }
 
 .backtologin-box {
