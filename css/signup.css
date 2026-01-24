@@ -40,13 +40,13 @@ body h1{
     margin-right: 5px;
 }
 
-.register-box {
+.backtologin-box {
     display: flex;
     margin-top: 20px;
     justify-content: center;
 }
 
-.register-box .signup-button {
+.backtologin-box .backtologin-button {
     font-family: Arial, sans-serif;
     padding: 8px 16px;
     border: none;
