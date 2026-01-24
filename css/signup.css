@@ -5,8 +5,8 @@ body h1{
     font-family: Arial, sans-serif;
 }
 
-.login-box {
-    width: 300px;
+.register-box {
+    width: 450px;
     margin: 0 auto;
     padding: 20px;
     border: 1px solid #ccc;
@@ -16,19 +16,19 @@ body h1{
     flex-direction: column;
 }
 
-.username-entry, .password-entry {
+.firstname-entry, .lastname-entry, .username-entry, .password-entry, .passwordconfirm-entry {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
 }
 
-.username-entry label, .password-entry label {
+.firstname-entry label, .lastname-entry label, .username-entry label, .password-entry label, .passwordconfirm-entry label {
     display: flex;
     align-items: center;
     width: 70px;
 }
 
-.username-entry input, .password-entry input {
+.firstname-entry input, .lastname-entry input, .username-entry input, .password-entry input, .passwordconfirm-entry input {
     padding: 4px;
     margin-left: 10px;
     flex-grow: 1;

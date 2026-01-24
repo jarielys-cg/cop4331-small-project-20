@@ -4,16 +4,41 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <title>Personal Contact Manager Signup</title>
-        <!--
-        Commented out stylesheet link for now
-        <link rel="stylesheet" type="text/css" href="styles.css">
-        -->
+        <title>Personal Contact Manager</title>
+        <link rel="stylesheet" type="text/css" href="../css/signup.css">
     </head>
 
     <body>
         <h1>
-            Personal Contact Manager Signup
+            Personal Contact Manager
         </h1>
+
+        <div class="register-box">
+            <div class="firstname-entry">
+                <label for="firstname">First Name:</label>
+                <input type="text" id="firstname" name="firstname"> <br><br>
+            </div>
+
+            <div class="lastname-entry">
+                <label for="lastname">Last Name:</label>
+                <input type="text" id="lastname" name="lastname"> <br><br>
+            </div>
+
+            <div class="username-entry">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username"> <br><br>
+            </div>
+            
+            <div class="password-entry">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password"> <br><br>
+            </div>
+
+            <div class="passwordconfirm-entry">
+                <label for="passwordconfirm">Confirm Password:</label>
+                <input type="password" id="passwordconfirm" name="passwordconfirm"> <br><br>
+            </div>
+            <button type="submit" class="register-button">Register</button>
+        </div>
     </body>
 </html>
