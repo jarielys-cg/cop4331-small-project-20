@@ -5,15 +5,27 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
         <title>Personal Contact Manager</title>
-        <!--
-        Commented out stylesheet link for now
-        <link rel="stylesheet" type="text/css" href="styles.css">
-        -->
+        <link rel="stylesheet" type="text/css" href="../css/signin.css">
     </head>
 
     <body>
         <h1>
             Personal Contact Manager
         </h1>
+
+        <div class="login-box">
+            <div class="username-entry">
+                <img src="../img/username-icon.svg" alt="Username" class="username-icon">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username"> <br><br>
+            </div>
+            
+            <div class="password-entry">
+                <img src="../img/password-icon.svg" alt="Password" class="password-icon">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password"> <br><br>
+            </div>
+            <button type="submit" class="login-button">Login</button>
+            
     </body>
 </html>
