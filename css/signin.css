@@ -1,0 +1,34 @@
+.login-box {
+    width: 300px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+}
+
+.username-entry, .password-entry {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.username-entry label, .password-entry label {
+    display: flex;
+    align-items: center;
+    width: 70px;
+}
+
+.username-entry input, .password-entry input {
+    padding: 4px;
+    margin-left: 10px;
+    flex-grow: 1;
+}
+
+.username-icon, .password-icon {
+    width: 20px;
+    vertical-align: middle;
+    margin-right: 5px;
+}
