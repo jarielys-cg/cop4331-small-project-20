@@ -16,6 +16,24 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `Contacts`
+--
+
+DROP TABLE IF EXISTS `Contacts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `Contacts` (
+  `ID` int NOT NULL AUTO_INCREMENT,
+  `FirstName` varchar(50) NOT NULL DEFAULT '',
+  `LastName` varchar(50) NOT NULL DEFAULT '',
+  `Email` varchar(50) NOT NULL DEFAULT '',
+  `PhoneNumber` varchar(20) NOT NULL DEFAULT '',
+  `UserID` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `Users`
 --
 
@@ -39,4 +57,4 @@ CREATE TABLE `Users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-01-25  0:52:22
+-- Dump completed on 2026-01-25  1:05:26
