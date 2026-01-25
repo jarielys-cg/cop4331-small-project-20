@@ -5,8 +5,6 @@ function redirectToLogin() {
 function validateForm() {
     let isError = false;
 
-    const firstName = document.getElementById("firstname").value.trim();
-    const lastName = document.getElementById("lastname").value.trim();
     const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value;
     const passwordConfirm = document.getElementById("passwordconfirm").value;
@@ -22,7 +20,7 @@ function validateForm() {
     }
 
     // Check for empty fields
-    if (!firstName || !lastName || !username || !password || !passwordConfirm) {
+    if (!username || !password || !passwordConfirm) {
         errorMessageContent = "All fields are required.";
         isError = true;
     }
