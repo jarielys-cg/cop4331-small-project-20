@@ -34,6 +34,12 @@ body h1{
     flex-grow: 1;
 }
 
+.error-message {
+    color: red;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
 .register-button {
     font-family: Arial, sans-serif;
     padding: 8px 16px;
