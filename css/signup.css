@@ -52,6 +52,10 @@ body h1{
     margin-top: 10px;
 }
 
+.register-button:hover {
+    background-color: #1b789e;
+}   
+
 .backtologin-box {
     display: flex;
     margin-top: 20px;
