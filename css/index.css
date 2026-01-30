@@ -1,79 +1,175 @@
-body h1{
-    text-align: center;
-    margin-top: 50px;
-    margin-bottom: 30px;
-    font-family: Arial, sans-serif;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+.main-container {
+    max-width: 1000px;
+    width: 100%;
+    gap: 100px;
+    display: flex;
+    align-items: center;
+}
+
+
+.logo-container {
+    flex: 1;
+    
+}
+
+.pcm-logo {
+    font-size: 60px;
+    font-weight: 700;
+    color: #4a5568;
+    letter-spacing: -0.05em;
+}
+
+.tagline { 
+    font-size: 28px;
+    color: #6b7280;
+    margin-top: 15px;
+    line-height: 32px;
 }
 
 .login-box {
-    width: 300px;
-    margin: 0 auto;
+    flex: 1;
+}
+
+.input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+.input-row input {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.username-entry {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #f9f9f9;
     display: flex;
     flex-direction: column;
+    gap: 12px;
 }
 
-.username-entry, .password-entry {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
+.username-entry input {
+    padding: 14px 16px;
+    font-size: 17px;
+    border: 1px solid #dddfe2;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.2s;
 }
 
-.username-entry label, .password-entry label {
-    display: flex;
-    align-items: center;
-    width: 70px;
+.username-entry input:focus {
+    border-color: #1877f2;
+    box-shadow: 0 0 0 2px #e7f3ff;
 }
 
-.username-entry input, .password-entry input {
-    padding: 4px;
-    margin-left: 10px;
-    flex-grow: 1;
-}
-
-.username-icon, .password-icon {
-    width: 20px;
-    vertical-align: middle;
-    margin-right: 5px;
-}
 
 .error-message {
     color: red;
-    font-family: Arial, sans-serif;
     text-align: center;
 }
 
 .login-button {
-    font-family: Arial, sans-serif;
-    padding: 8px 16px;
+  background-color: #4a5568;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 700;
+    padding: 14px;
     border: none;
-    border-radius: 3px;
-    background-color: #218fbb;
-    color: white;
-    font-size: 14px;
+    border-radius: 6px;
     cursor: pointer;
-    margin-top: 10px;
+    transition: background-color 0.2s;
 }
 
 .login-button:hover {
-    background-color: #1b789e;
+    background-color: #2d3748;
 }   
 
-.register-box {
-    display: flex;
-    margin-top: 20px;
-    justify-content: center;
+.create-account-button {
+    background-color: #3b82f6;
+    color: #ffffff;
+    font-size: 17px;
+    font-weight: 700;
+    padding: 14px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s;
+    align-self: center;
+    margin-top: 8px;
 }
 
-.register-box .signup-button {
-    font-family: Arial, sans-serif;
-    padding: 8px 16px;
+.create-account-button:hover {
+    background-color: #2563eb;
+}
+
+
+hr {
     border: none;
-    background-color: transparent;
-    font-size: 14px;
-    cursor: pointer;
-    color: black;
+    border-top: 1px solid #838587;
+    margin: 8px 0;
+}
+
+@media (max-width: 900px) {
+    .main-container {
+        flex-direction: column;
+        gap: 40px;
+        max-width: 400px;
+    }
+
+    .logo-container {
+        text-align: center;
+    }
+
+    .pcm-logo {
+        font-size: 50px;
+    }
+
+    .tagline {
+        font-size: 24px;
+        line-height: 28px;
+    }
+}
+
+@media (max-width: 500px) {
+    .pcm-logo {
+        font-size: 40px;
+    }
+
+    .tagline {
+        font-size: 20px;
+        line-height: 24px;
+    }
+
+    .username-entry input,
+    .login-button,
+    .create-account-button {
+        font-size: 16px;
+    }
 }
