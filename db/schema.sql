@@ -61,6 +61,7 @@ CREATE TABLE `Users` (
   `ID` int NOT NULL AUTO_INCREMENT,
   `Username` varchar(50) NOT NULL DEFAULT '',
   `Password` varchar(50) NOT NULL DEFAULT '',
+  `Email` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -74,4 +75,4 @@ CREATE TABLE `Users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-01-28  2:49:55
+-- Dump completed on 2026-01-30 23:00:18
