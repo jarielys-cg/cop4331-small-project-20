@@ -8,7 +8,7 @@
         {
             while ($row = $result->fetch_assoc()) 
             {
-                echo "ID: " . $row['ID'] . " Name: " . $row['FirstName'] . " " . $row['LastName'] . "\n";
+                echo "ID: " . $row['ID'] . " Username: " . $row['Username'] . " Password: " . $row['Password'] . " Email: " . $row['Email'] . "<br>";
             }
             echo "done";
         } 
@@ -39,7 +39,18 @@
     PrintUsers($conn);
 
     //add a user
-
+    $username = "wes";
+    $password =  "wild";
+    $email = "example@gmail.com";
+    $sql = "INSERT INTO Users (`Username`, `Password`, `Email`) VALUES ('$username', '$password', '$email')";
+    if ($conn->query($sql) === TRUE) 
+    {
+        echo "New record created successfully, ID: " . $conn->insert_id . "<br>";
+    } 
+    else 
+    {
+        echo "Error: " . $conn->error;
+    }
 
     PrintUsers($conn);
 
