@@ -40,3 +40,41 @@ function validateForm() {
 
     return true;
 }
+
+async function AddToDatabase()
+{
+    const data = {
+        username: document.getElementById("username").value,
+        password: document.getElementById("password").value,
+        email: document.getElementById("email").value
+    };
+
+    try 
+    {
+        const response = await fetch('http://localhost:8000/api/signup.php', 
+        {
+            method: 'POST',              // POST request
+            headers: 
+            {
+                'Content-Type': 'application/json'  // Tell PHP we’re sending JSON
+            },
+            body: JSON.stringify(data)   // Convert JS object to JSON string
+        });
+
+        const result = await response.json(); // Parse JSON from PHP
+        console.log(result);
+
+        if (result.success) 
+        {
+            alert('Signup successful! User ID: ' + result.id);
+        } 
+        else 
+        {
+            alert('Error: ' + result.error);
+        }
+    } 
+    catch (err) 
+    {
+        console.error('Fetch error:', err);
+    }
+}

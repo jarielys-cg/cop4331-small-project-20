@@ -16,19 +16,19 @@ body h1{
     flex-direction: column;
 }
 
-.username-entry, .password-entry, .passwordconfirm-entry {
+.username-entry, .password-entry, .passwordconfirm-entry, .email {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
 }
 
-.username-entry label, .password-entry label, .passwordconfirm-entry label {
+.username-entry label, .password-entry label, .passwordconfirm-entry label, .email label{
     display: flex;
     align-items: center;
     width: 70px;
 }
 
-.username-entry input, .password-entry input, .passwordconfirm-entry input {
+.username-entry input, .password-entry input, .passwordconfirm-entry input, .email input{
     padding: 4px;
     margin-left: 10px;
     flex-grow: 1;
