@@ -101,14 +101,20 @@ body {
    
 }   
 
-.backtologin {
+.backToLogin {
+    color: inherit;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.backToLogin a {
     padding: 8px 0px;
     text-decoration: none;
     font-size: 14px;
     text-align: center;
     color: #3b82f6;
 }
-.backtologin:hover {
+.backToLogin a:hover {
     text-decoration: underline;
 }
 
@@ -136,7 +142,7 @@ body {
 
     .signup-entry input,
     .register-button,
-    .backtologin-button {
+    .backToLogin a {
         font-size: 16px;
     }
 }

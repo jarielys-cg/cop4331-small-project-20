@@ -36,17 +36,22 @@ function validateLoginForm() {
 
     // add actual authentication later
 
+    return !error;
+
 }
 
 function validateRegistrationForm() {
     let isError = false;
 
+    const email = document.getElementById("email").value.trim();
     const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value;
     const passwordConfirm = document.getElementById("passwordconfirm").value;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
     const errorMessageDisplay = document.createElement("div");
     errorMessageDisplay.className = "error-message";
+
     let errorMessageContent = "";
 
     // Remove existing error message if any
@@ -56,9 +61,15 @@ function validateRegistrationForm() {
     }
 
     // Check for empty fields
-    if (!username || !password || !passwordConfirm) {
+    if (!email || !username || !password || !passwordConfirm) {
         errorMessageContent = "All fields are required.";
         isError = true;
+    }
+        // Validate email format
+    else if (!emailRegex.test(email)) {
+        errorMessageContent = "Invalid email format.";
+        isError = true;
+        email.focus();
     }
 
     // Check if passwords match
@@ -74,7 +85,17 @@ function validateRegistrationForm() {
         return false;
     }
 
-    return true;
+    return !isError;
+}
+
+function handleRegister(event) {
+    event.preventDefault(); // stop default submit
+
+    if (validateRegistrationForm()) {
+        AddToDatabase();
+        return true;
+    }
+    return false;
 }
 
 async function AddToDatabase()
