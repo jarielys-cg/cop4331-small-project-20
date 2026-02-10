@@ -19,10 +19,10 @@
             
 
             <div class="register-box">
-                <form class="signup-entry">
+                <form class="signup-entry" onsubmit="return handleRegister(event)">
 
                     <div class="input-row">
-                        <input type="email" id="email" name="email" placeholder="Email" required> <br><br>
+                        <input type="email" id="email" name="email" placeholder="Email" required pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"> <br><br>
                     </div>
 
                     <div class="input-row">
@@ -37,10 +37,12 @@
                         <input type="password" id="passwordconfirm" name="passwordconfirm" placeholder="Confirm Password"required> <br><br>
                     </div>
 
-                    <button type="submit" class="register-button" onclick="if(validateForm()) AddToDatabase()">Register</button>
+                    <button type="submit" class="register-button">Register</button>
 
+                   <p class="backToLogin">
+                        Already have an account? <a href="index.html" class="backtologin" ><b>Login</b></a>
+                    </p> 
                     
-                    <a href="index.html" class="backtologin" ><b>Back to Login</b></a>
                 
 
                 </form>
