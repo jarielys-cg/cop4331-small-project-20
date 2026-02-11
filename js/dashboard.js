@@ -51,7 +51,30 @@ function updateDashboardStats(stats) {
 
 
 async function loadAllContacts() {
-    // Show loading state
+     try {
+        showLoadingState();
+        
+        const response = await fetch('../api/get-contacts.php', {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            allContacts = data.contacts;
+            displayContacts(allContacts);
+        } else {
+            showMessage('Failed to load contacts', 'error');
+        }
+    } catch (error) {
+        console.error('Error loading contacts:', error);
+        showMessage('Error loading contacts', 'error');
+    } finally {
+        hideLoadingState();
+    }
 }
 
 //Display contacts
@@ -101,6 +124,10 @@ function handleSearch(event) {
     });
     
     displayContacts(filteredContacts);
+}
+
+//Filter contacts
+function handleFilter(event) {
 }
 
 
@@ -174,7 +201,40 @@ function createContactModal(title, contact = {}) {
 }
 
 async function addContact(formData) {
-   // Placeholder for adding contact to backend
+    try {
+        const contactData = {
+            first_name: formData.get('first_name'),
+            last_name: formData.get('last_name'),
+            email: formData.get('email'),
+            phone: formData.get('phone'),
+            company: formData.get('company'),
+            notes: formData.get('notes'),
+            is_favorite: formData.get('is_favorite') ? 1 : 0
+        };
+        
+        const response = await fetch('../api/addContact.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+            },
+            body: JSON.stringify(contactData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showMessage('Contact added successfully!', 'success');
+            closeModal();
+            loadAllContacts();
+            loadDashboardStats();
+        } else {
+            showMessage(data.message || 'Failed to add contact', 'error');
+        }
+    } catch (error) {
+        console.error('Error adding contact:', error);
+        showMessage('Error adding contact', 'error');
+    }
 }
 
 //View Contact Details
@@ -222,7 +282,40 @@ function editContact(contactId) {
 }
 
 async function updateContact(contactId, formData) {
-   // Placeholder for updating contact in backend
+   try {
+        const contactData = {
+            id: contactId,
+            first_name: formData.get('first_name'),
+            last_name: formData.get('last_name'),
+            email: formData.get('email'),
+            phone: formData.get('phone'),
+            company: formData.get('company'),
+            notes: formData.get('notes'),
+            is_favorite: formData.get('is_favorite') ? 1 : 0
+        };
+        
+        const response = await fetch('../api/update-contact.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+            },
+            body: JSON.stringify(contactData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showMessage('Contact updated successfully!', 'success');
+            closeModal();
+            loadAllContacts();
+        } else {
+            showMessage(data.message || 'Failed to update contact', 'error');
+        }
+    } catch (error) {
+        console.error('Error updating contact:', error);
+        showMessage('Error updating contact', 'error');
+    }
 }
 
 
@@ -240,7 +333,29 @@ function deleteContact(contactId) {
 }
 
 async function performDelete(contactId) {
-// Placeholder for deleting contact from backend
+     try {
+        const response = await fetch('../api/delete-contact.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+            },
+            body: JSON.stringify({ id: contactId })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showMessage('Contact deleted successfully!', 'success');
+            loadAllContacts();
+            loadDashboardStats();
+        } else {
+            showMessage(data.message || 'Failed to delete contact', 'error');
+        }
+    } catch (error) {
+        console.error('Error deleting contact:', error);
+        showMessage('Error deleting contact', 'error');
+    }
 }
 
 // Helper Functions
