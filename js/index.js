@@ -16,13 +16,11 @@ function validateLoginForm() {
     errorMessageDisplay.className = "error-message";
     let errorMessageContent = "";
 
-    // Remove existing error message if any
     const existingErrorMessage = document.querySelector(".error-message");
     if (existingErrorMessage) {
         existingErrorMessage.remove();
     }
 
-    // Check for empty fields
     if (!username || !password) {
         errorMessageContent = "All fields are required.";
         error = true;
@@ -34,10 +32,52 @@ function validateLoginForm() {
         passwordDiv.after(errorMessageDisplay);
     }
 
-    // add actual authentication later
-
     return !error;
 
+}
+
+function handleLogin(event) {
+    event.preventDefault();
+    if (validateLoginForm()) {
+        callLoginAPI();
+    }
+}
+
+async function callLoginAPI() {
+    const data = {
+        username: document.getElementById("username").value.trim(),
+        password: document.getElementById("password").value
+    };
+
+    try {
+        const response = await fetch('http://localhost:8000/api/Login.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            sessionStorage.setItem('userId', result.id);
+            sessionStorage.setItem('username', result.username);
+            window.location.href = './dashboard.html';
+        } else {
+            const existingError = document.querySelector(".error-message");
+            if (existingError) {
+                existingError.remove();
+            }
+            const errorDiv = document.createElement("div");
+            errorDiv.className = "error-message";
+            errorDiv.textContent = result.error;
+            const passwordDiv = document.querySelector(".password-entry");
+            passwordDiv.after(errorDiv);
+        }
+    } catch (err) {
+        console.error('Fetch error:', err);
+    }
 }
 
 function validateRegistrationForm() {
@@ -54,25 +94,20 @@ function validateRegistrationForm() {
 
     let errorMessageContent = "";
 
-    // Remove existing error message if any
     const existingErrorMessage = document.querySelector(".error-message");
     if (existingErrorMessage) {
         existingErrorMessage.remove();
     }
 
-    // Check for empty fields
     if (!email || !username || !password || !passwordConfirm) {
         errorMessageContent = "All fields are required.";
         isError = true;
     }
-        // Validate email format
     else if (!emailRegex.test(email)) {
         errorMessageContent = "Invalid email format.";
         isError = true;
         email.focus();
     }
-
-    // Check if passwords match
     else if (password !== passwordConfirm) {
         errorMessageContent = "Passwords do not match.";
         isError = true;
@@ -89,7 +124,7 @@ function validateRegistrationForm() {
 }
 
 function handleRegister(event) {
-    event.preventDefault(); // stop default submit
+    event.preventDefault();
 
     if (validateRegistrationForm()) {
         AddToDatabase();
@@ -106,31 +141,31 @@ async function AddToDatabase()
         email: document.getElementById("email").value
     };
 
-    try 
+    try
     {
-        const response = await fetch('http://localhost:8000/api/signup.php', 
+        const response = await fetch('http://localhost:8000/api/signup.php',
         {
-            method: 'POST',              // POST request
-            headers: 
+            method: 'POST',
+            headers:
             {
-                'Content-Type': 'application/json'  // Tell PHP we’re sending JSON
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify(data)   // Convert JS object to JSON string
+            body: JSON.stringify(data)
         });
 
-        const result = await response.json(); // Parse JSON from PHP
+        const result = await response.json();
         console.log(result);
 
-        if (result.success) 
+        if (result.success)
         {
             alert('Signup successful! User ID: ' + result.id);
-        } 
-        else 
+        }
+        else
         {
             alert('Error: ' + result.error);
         }
-    } 
-    catch (err) 
+    }
+    catch (err)
     {
         console.error('Fetch error:', err);
     }
