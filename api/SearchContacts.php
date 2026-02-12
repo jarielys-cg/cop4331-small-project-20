@@ -30,8 +30,8 @@ $search = trim((string)$search);
 
 // database connection info
 $DB_HOST = "localhost";
-$DB_USER = "YOUR_DB_USER";
-$DB_PASS = "YOUR_DB_PASS";
+$DB_USER = "Group20Admin";
+$DB_PASS = "ContactManagerAccess";
 $DB_NAME = "ContactManager";
 
 // connect to the database
