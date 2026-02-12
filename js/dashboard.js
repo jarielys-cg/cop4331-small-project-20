@@ -1,8 +1,8 @@
 
-//Loads dashboard data
+
 document.addEventListener('DOMContentLoaded', function() {
     
-    //checkAuthentication();
+    checkAuthentication();
     
     loadDashboardStats();
     loadAllContacts();
@@ -11,20 +11,24 @@ document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
 });
 
-/*function checkAuthentication() {
+function checkAuthentication() {
     const token = localStorage.getItem('authToken');
     if (!token) {
         window.location.href = "./index.html";
         return;
     }
-}*/
+}
 
 function setupEventListeners() {
-
-    //Search input
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
-        searchInput.addEventListener('input',handleSearch);
+        let searchTimeout;
+        searchInput.addEventListener('input', function(event) {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                handleSearch(event);
+            }, 300);
+        });
     }
 
     const filterSelect = document.querySelector('.filter-select');
@@ -38,23 +42,50 @@ function setupEventListeners() {
     }
 }
 
-//Load dashboard stats function
+
 function loadDashboardStats() {
     // Placeholder for fetching stats from backend
 }
     
 
-//update stats on the dashboard
+
 function updateDashboardStats(stats) {
     // Update the dashboard stats section with the provided data
+}
+async function handleSearch(event) {
+    const searchTerm = event.target.value.trim();
+    
+    try {
+        showLoadingState();
+        
+        const response = await fetch(`../api/searchContact.php?q=${encodeURIComponent(searchTerm)}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            displayContacts(data.contacts);
+        } else {
+            showMessage('Search failed', 'error');
+        }
+    } catch (error) {
+        console.error('Error searching contacts:', error);
+        showMessage('Error searching contacts', 'error');
+    } finally {
+        hideLoadingState();
     }
+}
 
 
 async function loadAllContacts() {
      try {
         showLoadingState();
         
-        const response = await fetch('../api/get-contacts.php', {
+        const response = await fetch('../api/searchContacts.php?q=', {
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + localStorage.getItem('authToken')
@@ -77,7 +108,7 @@ async function loadAllContacts() {
     }
 }
 
-//Display contacts
+
 function displayContacts(contacts) {
     const tbody = document.querySelector('.contact-table tbody');
     
@@ -109,7 +140,7 @@ function displayContacts(contacts) {
     `).join('');
 }
 
-//Search contacts
+
 function handleSearch(event) {
     const searchTerm = event.target.value.toLowerCase();
     
@@ -131,7 +162,6 @@ function handleFilter(event) {
 }
 
 
-//Add new contact modal
 function showAddContactModal() {
     const modal = createContactModal('Add New Contact', {});
     document.body.appendChild(modal);
@@ -187,7 +217,7 @@ function createContactModal(title, contact = {}) {
             </form>
         </div>
     `;
-        // Handle form submission
+        
     modal.querySelector('form').addEventListener('submit', (e) => {
         e.preventDefault();
         if (contact.id) {
@@ -237,48 +267,73 @@ async function addContact(formData) {
     }
 }
 
-//View Contact Details
-function viewContact(contactId) {
-    const contact = allContacts.find(c => c.id === contactId);
-    
-    if (!contact) return;
-    
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay';
-    modal.innerHTML = `
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Contact Details</h3>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
+
+async function viewContact(contactId) {
+    try {
+        
+        const response = await fetch(`../api/searchContact.php?q=`, {
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+            }
+        });
+        
+        const data = await response.json();
+        const contact = data.contacts.find(c => c.id === contactId);
+        
+        if (!contact) return;
+        
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Contact Details</h3>
+                    <button class="close-btn" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="contact-details">
+                    <p><strong>Name:</strong> ${escapeHtml(contact.first_name + ' ' + (contact.last_name || ''))}</p>
+                    <p><strong>Email:</strong> ${escapeHtml(contact.email || 'N/A')}</p>
+                    <p><strong>Phone:</strong> ${escapeHtml(contact.phone || 'N/A')}</p>
+                    <p><strong>Company:</strong> ${escapeHtml(contact.company || 'N/A')}</p>
+                    <p><strong>Group:</strong> ${escapeHtml(contact.group_name || 'None')}</p>
+                    <p><strong>Notes:</strong> ${escapeHtml(contact.notes || 'N/A')}</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+                    <button class="btn btn-primary" onclick="closeModal(); editContact(${contactId})">Edit</button>
+                </div>
             </div>
-            <div class="contact-details">
-                <p><strong>Name:</strong> ${escapeHtml(contact.first_name + ' ' + (contact.last_name || ''))}</p>
-                <p><strong>Email:</strong> ${escapeHtml(contact.email || 'N/A')}</p>
-                <p><strong>Phone:</strong> ${escapeHtml(contact.phone || 'N/A')}</p>
-                <p><strong>Company:</strong> ${escapeHtml(contact.company || 'N/A')}</p>
-                <p><strong>Group:</strong> ${escapeHtml(contact.group_name || 'None')}</p>
-                <p><strong>Notes:</strong> ${escapeHtml(contact.notes || 'N/A')}</p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal()">Close</button>
-                <button class="btn btn-primary" onclick="closeModal(); editContact(${contactId})">Edit</button>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-    modal.style.display = 'block';
+        `;
+        
+        document.body.appendChild(modal);
+        modal.style.display = 'block';
+    } catch (error) {
+        console.error('Error viewing contact:', error);
+        showMessage('Error loading contact details', 'error');
+    }
 }
 
-//edit Contact
-function editContact(contactId) {
-    const contact = allContacts.find(c => c.id === contactId);
-    
-    if (!contact) return;
-    
-    const modal = createContactModal('Edit Contact', contact);
-    document.body.appendChild(modal);
-    modal.style.display = 'block';
+
+async function editContact(contactId) {
+    try {
+        const response = await fetch(`../api/searchContact.php?q=`, {
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+            }
+        });
+        
+        const data = await response.json();
+        const contact = data.contacts.find(c => c.id === contactId);
+        
+        if (!contact) return;
+        
+        const modal = createContactModal('Edit Contact', contact);
+        document.body.appendChild(modal);
+        modal.style.display = 'block';
+    } catch (error) {
+        console.error('Error loading contact for edit:', error);
+        showMessage('Error loading contact', 'error');
+    }
 }
 
 async function updateContact(contactId, formData) {
@@ -294,7 +349,7 @@ async function updateContact(contactId, formData) {
             is_favorite: formData.get('is_favorite') ? 1 : 0
         };
         
-        const response = await fetch('../api/update-contact.php', {
+        const response = await fetch('../api/updateContact.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -319,13 +374,8 @@ async function updateContact(contactId, formData) {
 }
 
 
-// Delete Contact
 function deleteContact(contactId) {
-    const contact = allContacts.find(c => c.id === contactId);
-    
-    if (!contact) return;
-    
-    if (!confirm(`Are you sure you want to delete ${contact.first_name} ${contact.last_name || ''}?`)) {
+    if (!confirm(`Are you sure you want to delete this contact?`)) {
         return;
     }
     
@@ -334,7 +384,7 @@ function deleteContact(contactId) {
 
 async function performDelete(contactId) {
      try {
-        const response = await fetch('../api/delete-contact.php', {
+        const response = await fetch('../api/deleteContact.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -358,7 +408,6 @@ async function performDelete(contactId) {
     }
 }
 
-// Helper Functions
 function closeModal() {
     const modal = document.querySelector('.modal-overlay');
     if (modal) {
@@ -396,13 +445,12 @@ function escapeHtml(text) {
 }
 
 function showMessage(message, type) {
-    // Remove existing message
+
     const existingMessage = document.querySelector('.alert-message');
     if (existingMessage) {
         existingMessage.remove();
     }
     
-    // Create message element
     const messageDiv = document.createElement('div');
     messageDiv.className = `alert-message alert-${type}`;
     messageDiv.textContent = message;
@@ -421,15 +469,13 @@ function showMessage(message, type) {
     `;
     
     document.body.appendChild(messageDiv);
-    
-    // Auto remove after 5 seconds
+
     setTimeout(() => {
         messageDiv.style.animation = 'slideOut 0.3s ease-out';
         setTimeout(() => messageDiv.remove(), 300);
     }, 5000);
 }
 
-// Logout Function
 function logout() {
     localStorage.removeItem('authToken');
     window.location.href = '../index.html';
