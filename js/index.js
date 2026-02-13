@@ -159,6 +159,20 @@ async function AddToDatabase()
         if (result.success)
         {
             alert('Signup successful! User ID: ' + result.id);
+            response = await fetch('http://localhost:8000/api/login.php',
+            {
+            method: 'POST',
+            headers:
+                {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({username: data.username, password: data.password})
+            });
+            const result = await response.json();
+            if (result.success)
+            {
+                window.location.href = "dashboard.html"
+            }  
         }
         else
         {
