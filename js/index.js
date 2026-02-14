@@ -106,7 +106,7 @@ function validateRegistrationForm() {
     else if (!emailRegex.test(email)) {
         errorMessageContent = "Invalid email format.";
         isError = true;
-        email.focus();
+        document.getElementById("email").focus();
     }
     else if (password !== passwordConfirm) {
         errorMessageContent = "Passwords do not match.";
