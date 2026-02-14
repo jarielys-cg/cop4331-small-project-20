@@ -168,8 +168,8 @@ async function AddToDatabase()
                 },
                 body: JSON.stringify({username: data.username, password: data.password})
             });
-            const result = await response.json();
-            if (result.success)
+            const loginResult = await response.json();
+            if (loginResult.success)
             {
                 window.location.href = "dashboard.html"
             }  
