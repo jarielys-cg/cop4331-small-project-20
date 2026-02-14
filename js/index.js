@@ -159,7 +159,7 @@ async function AddToDatabase()
         if (result.success)
         {
             alert('Signup successful! User ID: ' + result.id);
-            response = await fetch('http://134.199.200.89/api/login.php',
+            const loginResponse = await fetch('http://134.199.200.89/api/login.php',
             {
             method: 'POST',
             headers:
@@ -168,7 +168,7 @@ async function AddToDatabase()
                 },
                 body: JSON.stringify({username: data.username, password: data.password})
             });
-            const loginResult = await response.json();
+            const loginResult = await loginResponse.json();
             if (loginResult.success)
             {
                 window.location.href = "dashboard.html"
