@@ -1,50 +1,51 @@
-<?
-//CORS
+<?php
+// CORS 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
-header("Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Headers: Content-Type');
 header('Content-Type: application/json');
 
-//preflight request
-if($_SERVER['REQUEST_METHOD'] === 'OPTIONS'){
-  exit(0);
+//  preflight request
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    exit(0);
 }
 
-//actual connection to access database
+// Connect to database (same as other endpoints)
 $conn = new mysqli("localhost", "Group20Admin", "ContactManagerAccess", "ContactManager");
-if($conn->connect_error){
-  echo json_encode(["success" => false, "error" => $conn->connect_error]);
-  exit();
+if ($conn->connect_error) {
+    echo json_encode(["success" => false, "error" => $conn->connect_error]);
+    exit();
 }
 
-//Takes input from the frontend
+// Gets input from the frontend
 $input = json_decode(file_get_contents("php://input"), true);
 
 $contactid = intval($input['contactid'] ?? 0);
 $userid    = intval($input['userid'] ?? 0);
 
-if($contactid <= 0 || $userid <= 0) {
-  http_response_code(400);
-  echo_json_encode(["success" => false, "error" => "Missing contactid or userid"]);
-  $conn->close();
-  exit();
+if ($contactid <= 0 || $userid <= 0) {
+    http_response_code(400);
+    echo json_encode(["success" => false, "error" => "Missing contactid or userid"]);
+    $conn->close();
+    exit();
 }
 
-//delete if it matches the schema
+// Deletes only if it matches schema
 $stmt = $conn->prepare("DELETE FROM Contacts WHERE ID = ? AND UserID = ?");
 $stmt->bind_param("ii", $contactid, $userid);
 
-if($stmt->execute()){
-  if($stmt->affected_rows > 0){
-    echo json_encode(["success" => true]);
-  } else{
-      http_response_code(404);
-      echo json_encode(["success" =>false, "error" => "Contact not found"]);
-  }
-} else{
+if ($stmt->execute()) {
+    if ($stmt->affected_rows > 0) {
+        echo json_encode(["success" => true]);
+    } else {
+        http_response_code(404);
+        echo json_encode(["success" => false, "error" => "Contact not found"]);
+    }
+} else {
     http_response_code(500);
-  echo json_encode(["success" => false, "error" => $stmt->error]);
+    echo json_encode(["success" => false, "error" => $stmt->error]);
 }
+
 $stmt->close();
-$cpnn->close();
+$conn->close();
 ?>
