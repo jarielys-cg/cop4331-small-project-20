@@ -26,7 +26,7 @@ function validateLoginForm() {
         error = true;
     }
 
-    if(error) {
+    if (error) {
         errorMessageDisplay.textContent = errorMessageContent;
         const passwordDiv = document.querySelector(".password-entry");
         passwordDiv.after(errorMessageDisplay);
@@ -50,7 +50,7 @@ async function callLoginAPI() {
     };
 
     try {
-        const response = await fetch('http://134.199.200.89/api/Login.php', {
+        const response = await fetch('http://134.199.200.89/api/login.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -113,7 +113,7 @@ function validateRegistrationForm() {
         isError = true;
     }
 
-    if(isError) {
+    if (isError) {
         errorMessageDisplay.textContent = errorMessageContent;
         const passwordConfirmDiv = document.querySelector(".passwordconfirm-entry");
         passwordConfirmDiv.after(errorMessageDisplay);
@@ -133,25 +133,23 @@ function handleRegister(event) {
     return false;
 }
 
-async function AddToDatabase()
-{
+async function AddToDatabase() {
     const data = {
         username: document.getElementById("username").value,
         password: document.getElementById("password").value,
         email: document.getElementById("email").value
     };
 
-    try
-    {
+    try {
         const response = await fetch('http://134.199.200.89/api/signup.php',
-        {
-            method: 'POST',
-            headers:
             {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
+                method: 'POST',
+                headers:
+                {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
 
         const result = await response.json();
         console.log(result);
@@ -159,29 +157,26 @@ async function AddToDatabase()
         if (result.success)
         {
             const loginResponse = await fetch('http://134.199.200.89/api/login.php',
-            {
-            method: 'POST',
-            headers:
                 {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({username: data.username, password: data.password})
-            });
+                    method: 'POST',
+                    headers:
+                    {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username: data.username, password: data.password })
+                });
             const loginResult = await loginResponse.json();
-            if (loginResult.success)
-            {
+            if (loginResult.success) {
                 sessionStorage.setItem('userId', loginResult.id);
                 sessionStorage.setItem('username', loginResult.username);
                 window.location.href = "dashboard.html"
-            }  
+            }
         }
-        else
-        {
+        else {
             alert('Error: ' + result.error);
         }
     }
-    catch (err)
-    {
+    catch (err) {
         console.error('Fetch error:', err);
     }
 }

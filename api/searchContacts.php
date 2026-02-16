@@ -55,9 +55,7 @@ SELECT
   LastName,
   Email,
   PhoneNumber,
-  UserID,
-  IsFavorite,
-  GroupID
+  UserID
 FROM Contacts
 WHERE UserID = ?
   AND (
