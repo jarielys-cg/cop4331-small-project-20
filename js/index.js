@@ -154,8 +154,8 @@ async function AddToDatabase() {
         const result = await response.json();
         console.log(result);
 
-        if (result.success) {
-            alert('Signup successful! User ID: ' + result.id);
+        if (result.success)
+        {
             const loginResponse = await fetch('http://134.199.200.89/api/login.php',
                 {
                     method: 'POST',
