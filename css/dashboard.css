@@ -57,6 +57,8 @@ body {
     padding: 20px;
     position: fixed;
     height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 .sidebar-item {
     display: flex;
@@ -86,9 +88,8 @@ body {
 }
 
 .sidebar-logout {
-    bottom: 20px; 
+    margin-top: auto;
     padding: 12px 15px;
-    position: absolute;
     color: var(--danger-color);
 }
 
