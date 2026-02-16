@@ -19,7 +19,7 @@
 		exit;
 	}
 
-	// get input from frontend and validate
+	// get input from frontend and validates
 	$input = json_decode(file_get_contents("php://input"), true);
 	$username = $input['username'] ?? '';
 	$password = $input['password'] ?? '';
