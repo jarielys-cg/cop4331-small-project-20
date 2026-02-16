@@ -25,11 +25,9 @@
     $email = $input['email'] ?? '';
     $phonenum = $input['phonenum'] ?? '';
     $userid = intval($input['userid'] ?? 0);
-    $isfav = intval($input['isfav'] ?? 0);
-    $groupid = intval($input['groupid'] ?? 0);
     
-    $stmt = $conn->prepare("INSERT INTO Contacts (`FirstName`, `LastName`, `Email`, `PhoneNumber`, `UserID`, `IsFavorite`, `GroupID`) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssssiii", $first, $last, $email, $phonenum, $userid, $isfav, $groupid);
+    $stmt = $conn->prepare("INSERT INTO Contacts (`FirstName`, `LastName`, `Email`, `PhoneNumber`, `UserID`) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssssi", $first, $last, $email, $phonenum, $userid);
     
     if ($stmt->execute()) 
     {
