@@ -29,31 +29,10 @@ CREATE TABLE `Contacts` (
   `Email` varchar(50) NOT NULL DEFAULT '',
   `PhoneNumber` varchar(20) NOT NULL DEFAULT '',
   `UserID` int NOT NULL DEFAULT '0',
-  `IsFavorite` tinyint(1) NOT NULL DEFAULT '0',
-  `GroupID` int DEFAULT NULL,
   PRIMARY KEY (`ID`),
   KEY `UserID` (`UserID`),
-  KEY `GroupID` (`GroupID`),
-  CONSTRAINT `Contacts_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `Users` (`ID`) ON DELETE CASCADE,
-  CONSTRAINT `Contacts_ibfk_2` FOREIGN KEY (`GroupID`) REFERENCES `UserGroups` (`ID`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `UserGroups`
---
-
-DROP TABLE IF EXISTS `UserGroups`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `UserGroups` (
-  `ID` int NOT NULL AUTO_INCREMENT,
-  `GroupName` varchar(50) NOT NULL DEFAULT '',
-  `UserID` int NOT NULL DEFAULT '0',
-  PRIMARY KEY (`ID`),
-  KEY `UserID` (`UserID`),
-  CONSTRAINT `UserGroups_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `Users` (`ID`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `Contacts_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `Users` (`ID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -69,7 +48,7 @@ CREATE TABLE `Users` (
   `Password` varchar(50) NOT NULL DEFAULT '',
   `Email` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -81,4 +60,4 @@ CREATE TABLE `Users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-02-13  1:14:11
+-- Dump completed on 2026-02-16 19:14:06
