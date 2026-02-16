@@ -171,6 +171,8 @@ async function AddToDatabase()
             const loginResult = await loginResponse.json();
             if (loginResult.success)
             {
+                sessionStorage.setItem('userId', loginResult.id);
+                sessionStorage.setItem('username', loginResult.username);
                 window.location.href = "dashboard.html"
             }  
         }
