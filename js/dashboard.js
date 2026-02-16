@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function checkAuthentication() {
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('userId');
     if (!token) {
         window.location.href = "./index.html";
         return;
@@ -61,7 +61,7 @@ async function handleSearch(event) {
         const response = await fetch(`../api/searchContact.php?q=${encodeURIComponent(searchTerm)}`, {
             method: 'GET',
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                'Authorization': 'Bearer ' + sessionStorage.getItem('userId')
             }
         });
         
@@ -88,7 +88,7 @@ async function loadAllContacts() {
         const response = await fetch('../api/searchContacts.php?q=', {
             method: 'GET',
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                'Authorization': 'Bearer ' + sessionStorage.getItem('userId')
             }
         });
         
@@ -246,7 +246,7 @@ async function addContact(formData) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                'Authorization': 'Bearer ' + sessionStorage.getItem('userId')
             },
             body: JSON.stringify(contactData)
         });
@@ -273,7 +273,7 @@ async function viewContact(contactId) {
         
         const response = await fetch(`../api/searchContact.php?q=`, {
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                'Authorization': 'Bearer ' + sessionStorage.getItem('userId')
             }
         });
         
@@ -318,7 +318,7 @@ async function editContact(contactId) {
     try {
         const response = await fetch(`../api/searchContact.php?q=`, {
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                'Authorization': 'Bearer ' + sessionStorage.getItem('userId')
             }
         });
         
@@ -353,7 +353,7 @@ async function updateContact(contactId, formData) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                'Authorization': 'Bearer ' + sessionStorage.getItem('userId')
             },
             body: JSON.stringify(contactData)
         });
@@ -388,7 +388,7 @@ async function performDelete(contactId) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                'Authorization': 'Bearer ' + sessionStorage.getItem('userId')
             },
             body: JSON.stringify({ id: contactId })
         });
@@ -477,6 +477,6 @@ function showMessage(message, type) {
 }
 
 function logout() {
-    localStorage.removeItem('authToken');
-    window.location.href = '../index.html';
+    sessionStorage.clear();
+    window.location.href = './index.html';
 }
