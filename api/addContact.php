@@ -19,28 +19,28 @@
 	} 
 
     //get input from frontend
-    $input = json_decode(file_get_contents("php://input"), true);
-    $first = $input['firstname'] ?? '';
-    $last = $input['lastname'] ?? '';
+    $first_name = $input['first_name'] ?? '';
+    $last_name = $input['last_name'] ?? '';
     $email = $input['email'] ?? '';
-    $phonenum = $input['phonenum'] ?? '';
-    $userid = intval($input['userid'] ?? 0);
+    $phone = $input['phone'] ?? '';
+    $user_id = intval($input['user_id'] ?? 0);
     
     $stmt = $conn->prepare("INSERT INTO Contacts (`FirstName`, `LastName`, `Email`, `PhoneNumber`, `UserID`) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssssi", $first, $last, $email, $phonenum, $userid);
+    $stmt->bind_param("ssssi", $first_name, $last_name, $email, $phone, $user_id);
     
     if ($stmt->execute()) 
     {
         echo json_encode([
             "success" => true,
-            "id" => $stmt->insert_id
+            "id" => $stmt->insert_id,
+            "message" => "Contact added successfully"
         ]);
     } 
     else 
     {
         echo json_encode([
             "success" => false,
-            "error" => $stmt->error
+            "message" => "Failed to add contact: " . $stmt->error
         ]);
     }
 
