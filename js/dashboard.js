@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function checkAuthentication() {
     const token = sessionStorage.getItem('userId');
     if (!token) {
-        //window.location.href = "./index.html";
+        window.location.href = "./index.html";
         return;
     }
 }
@@ -88,7 +88,7 @@ async function loadAllContacts() {
          const userId = sessionStorage.getItem('userId');
         if (!userId) {
             console.error('No userId in session');
-            //window.location.href = './index.html';
+            window.location.href = './index.html';
             return;
         }
          const response = await fetch(`/api/searchContacts.php?userId=${userId}&q=`, {
