@@ -1,21 +1,32 @@
 <?php
 // tells the client that we’re sending json back
 header("Content-Type: application/json");
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
 
-// grabs the raw request body
-$raw = file_get_contents("php://input");
-$data = json_decode($raw, true);
-
-// stop if the json is invalid
-if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
-    http_response_code(400);
-    echo json_encode(["error" => "invalid json"]);
-    exit();
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    exit(0);
 }
 
-// pull out what we need from the request
-$userId = $data["UserID"] ?? $data["userId"] ?? $data["userID"] ?? null;
-$search = $data["Search"] ?? $data["search"] ?? "";
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $search = $_GET['q'] ?? $_GET['search'] ?? "";
+    $userId = $_GET['userId'] ?? null;
+} else {
+    // grabs the raw request body
+    $raw = file_get_contents("php://input");
+    $data = json_decode($raw, true);
+
+    // stop if the json is invalid
+    if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
+        http_response_code(400);
+        echo json_encode(["error" => "invalid json"]);
+        exit();
+    }
+    // pull out what we need from the request
+    $userId = $data["UserID"] ?? $data["userId"] ?? $data["userID"] ?? null;
+    $search = $data["Search"] ?? $data["search"] ?? "";
+}
 
 // can’t search without knowing the user
 if ($userId === null) {
@@ -94,7 +105,15 @@ $result = $stmt->get_result();
 $contacts = [];
 
 while ($row = $result->fetch_assoc()) {
-    $contacts[] = $row; // add each contact to the response list
+    $contacts[] = [
+        'id' => $row['ID'],
+        'first_name' => $row['FirstName'],
+        'last_name' => $row['LastName'],
+        'email' => $row['Email'],
+        'phone' => $row['PhoneNumber'],
+        'is_favorite' => $row['IsFavorite'],
+        'group_id' => $row['GroupID']
+    ];
 }
 
 // send results back to the frontend
