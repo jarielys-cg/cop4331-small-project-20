@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function checkAuthentication() {
     const token = sessionStorage.getItem('userId');
     if (!token) {
-        window.location.href = "./index.html";
+        //window.location.href = "./index.html";
         return;
     }
 }
@@ -88,7 +88,7 @@ async function loadAllContacts() {
          const userId = sessionStorage.getItem('userId');
         if (!userId) {
             console.error('No userId in session');
-            window.location.href = './index.html';
+            //window.location.href = './index.html';
             return;
         }
          const response = await fetch(`/api/searchContacts.php?userId=${userId}&q=`, {
@@ -196,20 +196,6 @@ function createContactModal(title, contact = {}) {
                     <label>Phone</label>
                     <input type="tel" name="phone" value="${contact.phone || ''}">
                 </div>
-                <div class="form-group">
-                    <label>Company</label>
-                    <input type="text" name="company" value="${contact.company || ''}">
-                </div>
-                <div class="form-group">
-                    <label>Notes</label>
-                    <textarea name="notes" rows="3">${contact.notes || ''}</textarea>
-                </div>
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" name="is_favorite" ${contact.is_favorite ? 'checked' : ''}>
-                        Add to Favorites
-                    </label>
-                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
                     <button type="submit" class="btn btn-primary">
@@ -239,9 +225,7 @@ async function addContact(formData) {
             last_name: formData.get('last_name'),
             email: formData.get('email'),
             phone: formData.get('phone'),
-            company: formData.get('company'),
-            notes: formData.get('notes'),
-            is_favorite: formData.get('is_favorite') ? 1 : 0
+            user_id: sessionStorage.getItem('userId')
         };
         
         const response = await fetch('../api/addContact.php', {
