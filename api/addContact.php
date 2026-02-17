@@ -2,7 +2,7 @@
     // CORS headers
     header('Access-Control-Allow-Origin: *');
     header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization');
     header('Content-Type: application/json');
 
     // Handle preflight request
@@ -19,6 +19,7 @@
 	} 
 
     //get input from frontend
+    $input = json_decode(file_get_contents("php://input"), true);
     $first_name = $input['first_name'] ?? '';
     $last_name = $input['last_name'] ?? '';
     $email = $input['email'] ?? '';
