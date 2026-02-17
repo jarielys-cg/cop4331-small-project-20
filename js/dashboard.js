@@ -58,7 +58,7 @@ async function handleSearch(event) {
     try {
         showLoadingState();
         
-        const response = await fetch(`../api/searchContact.php?q=${encodeURIComponent(searchTerm)}`, {
+        const response = await fetch(`../api/searchContacts.php?q=${encodeURIComponent(searchTerm)}`, {
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + sessionStorage.getItem('userId')
@@ -95,8 +95,7 @@ async function loadAllContacts() {
         const data = await response.json();
         
         if (data.success) {
-            allContacts = data.contacts;
-            displayContacts(allContacts);
+            displayContacts(data.contacts);
         } else {
             showMessage('Failed to load contacts', 'error');
         }
@@ -271,7 +270,7 @@ async function addContact(formData) {
 async function viewContact(contactId) {
     try {
         
-        const response = await fetch(`../api/searchContact.php?q=`, {
+        const response = await fetch(`../api/searchContacts.php?q=`, {
             headers: {
                 'Authorization': 'Bearer ' + sessionStorage.getItem('userId')
             }
@@ -316,7 +315,7 @@ async function viewContact(contactId) {
 
 async function editContact(contactId) {
     try {
-        const response = await fetch(`../api/searchContact.php?q=`, {
+        const response = await fetch(`../api/searchContacts.php?q=`, {
             headers: {
                 'Authorization': 'Bearer ' + sessionStorage.getItem('userId')
             }
