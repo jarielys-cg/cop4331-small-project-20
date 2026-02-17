@@ -85,11 +85,14 @@ async function loadAllContacts() {
      try {
         showLoadingState();
         
-        const response = await fetch('../api/searchContacts.php?q=', {
-            method: 'GET',
-            headers: {
-                'Authorization': 'Bearer ' + sessionStorage.getItem('userId')
-            }
+         const userId = sessionStorage.getItem('userId');
+        if (!userId) {
+            console.error('No userId in session');
+            window.location.href = './index.html';
+            return;
+        }
+         const response = await fetch(`/api/searchContacts.php?userId=${userId}&q=`, {
+            method: 'GET'
         });
         
         const data = await response.json();
