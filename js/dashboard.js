@@ -121,7 +121,6 @@ function displayContacts(contacts) {
             <td>${escapeHtml(contact.first_name + ' ' + (contact.last_name || ''))}</td>
             <td>${escapeHtml(contact.phone || 'N/A')}</td>
             <td>${escapeHtml(contact.email || 'N/A')}</td>
-            <td>${escapeHtml(contact.group_name || 'None')}</td>
             <td>
                 <button class="btn btn-sm btn-primary" onclick="viewContact(${contact.id})">View</button>
                 <button class="btn btn-sm btn-secondary" onclick="editContact(${contact.id})">Edit</button>
