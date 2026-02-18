@@ -25,7 +25,7 @@ body {
 
 .logo-container {
     flex: 1;
-    
+
 }
 
 .pcm-logo {
@@ -35,7 +35,7 @@ body {
     letter-spacing: -0.05em;
 }
 
-.tagline { 
+.tagline {
     font-size: 28px;
     color: #6b7280;
     margin-top: 15px;
@@ -58,6 +58,7 @@ body {
     height: 20px;
     flex-shrink: 0;
 }
+
 .input-row input {
     flex: 1;
     padding: 10px;
@@ -108,10 +109,10 @@ body {
 
 .login-button:hover {
     background-color: #2d3748;
-}   
+}
 
 .create-account-button {
-    background-color: #3b82f6;
+    background-color: #2563eb;
     color: #ffffff;
     font-size: 17px;
     font-weight: 700;
@@ -126,7 +127,7 @@ body {
 }
 
 .create-account-button:hover {
-    background-color: #2563eb;
+    background-color: #1d4ed8;
 }
 
 

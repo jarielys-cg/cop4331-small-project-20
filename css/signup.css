@@ -14,6 +14,7 @@ body {
     padding: 20px;
     font-family: Helvetica, Arial, sans-serif;
 }
+
 .main-container {
     max-width: 1000px;
     width: 100%;
@@ -24,7 +25,7 @@ body {
 
 .logo-container {
     flex: 1;
-    
+
 }
 
 .pcm-logo {
@@ -33,6 +34,7 @@ body {
     color: #4a5568;
     letter-spacing: -0.05em;
 }
+
 .pcm-logo a {
     text-decoration: none;
     color: inherit;
@@ -50,7 +52,7 @@ body {
     margin-bottom: 15px;
 }
 
-.input-row input{
+.input-row input {
     flex: 1;
     padding: 10px;
     font-size: 16px;
@@ -74,6 +76,7 @@ body {
     outline: none;
     transition: border-color 0.2s;
 }
+
 .signup-entry input:focus {
     border-color: #1877f2;
     box-shadow: 0 0 0 2px #e7f3ff;
@@ -97,9 +100,9 @@ body {
 }
 
 .register-button:hover {
-   background-color: #2563eb;
-   
-}   
+    background-color: #2563eb;
+
+}
 
 .backToLogin {
     color: inherit;
@@ -112,8 +115,9 @@ body {
     text-decoration: none;
     font-size: 14px;
     text-align: center;
-    color: #3b82f6;
+    color: #2563eb;
 }
+
 .backToLogin a:hover {
     text-decoration: underline;
 }
