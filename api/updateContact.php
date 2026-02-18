@@ -1,6 +1,14 @@
 <?php
 
-header('Content-type: application/json');
+//CORS headers
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+header('Content-Type: application/json');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    exit(0);
+}
 
 // Connects to database
 $conn = new mysqli("localhost", "Group20Admin", "ContactManagerAccess", "ContactManager");
@@ -12,11 +20,11 @@ if($conn->connect_error) {
 
 // Stores input to edit from front-end
 $input = json_decode(file_get_contents("php://input"), true);
-$id = $input['ID'] ?? null;
-$first_name = $input['FirstName'] ?? '';
-$last_name = $input['LastName'] ?? '';
-$email = $input['Email'] ?? '';
-$phone_number = $input['PhoneNumber'] ?? '';
+$id = $input['id'] ?? null;
+$first_name = $input['first_name'] ?? '';
+$last_name = $input['last_name'] ?? '';
+$email = $input['email'] ?? '';
+$phone = $input['phone'] ?? '';
 
 // Unique contact ID is required to edit contact information
 if(!$id) {
