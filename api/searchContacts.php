@@ -111,8 +111,8 @@ while ($row = $result->fetch_assoc()) {
         'last_name' => $row['LastName'],
         'email' => $row['Email'],
         'phone' => $row['PhoneNumber'],
-        'is_favorite' => $row['IsFavorite'],
-        'group_id' => $row['GroupID']
+        //'is_favorite' => $row['IsFavorite'],
+        //'group_id' => $row['GroupID']
     ];
 }
 
