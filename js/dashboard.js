@@ -3,13 +3,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     
     checkAuthentication();
-    
-    loadDashboardStats();
     loadAllContacts();
-    //loadGroups();
-    
     setupEventListeners();
 });
+
+let allContacts = [];
 
 function checkAuthentication() {
     const token = sessionStorage.getItem('userId');
@@ -42,16 +40,6 @@ function setupEventListeners() {
     }
 }
 
-
-function loadDashboardStats() {
-    // Placeholder for fetching stats from backend
-}
-    
-
-
-function updateDashboardStats(stats) {
-    // Update the dashboard stats section with the provided data
-}
 async function handleSearch(event) {
     const searchTerm = event.target.value.trim();
     
@@ -98,7 +86,8 @@ async function loadAllContacts() {
         const data = await response.json();
         
         if (data.success) {
-            displayContacts(data.contacts);
+            allContacts = data.contacts;
+            displayContacts(allContacts);
         } else {
             showMessage('Failed to load contacts', 'error');
         }
@@ -143,24 +132,36 @@ function displayContacts(contacts) {
 }
 
 
-function handleSearch(event) {
-    const searchTerm = event.target.value.toLowerCase();
+async function handleSearch(event) {
+    const searchTerm = event.target.value.trim();
     
-    const filteredContacts = allContacts.filter(contact => {
-        const fullName = (contact.first_name + ' ' + (contact.last_name || '')).toLowerCase();
-        const phone = (contact.phone || '').toLowerCase();
-        const email = (contact.email || '').toLowerCase();
+    try {
+        showLoadingState();
         
-        return fullName.includes(searchTerm) || 
-               phone.includes(searchTerm) || 
-               email.includes(searchTerm);
-    });
-    
-    displayContacts(filteredContacts);
-}
-
-//Filter contacts
-function handleFilter(event) {
+        const userId = sessionStorage.getItem('userId');
+        if (!userId) {
+            window.location.href = './index.html';
+            return;
+        }
+        
+        const response = await fetch(`/api/searchContacts.php?userId=${userId}&q=${encodeURIComponent(searchTerm)}`, {
+            method: 'GET'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            allContacts = data.contacts; 
+            displayContacts(data.contacts);
+        } else {
+            showMessage('Search failed', 'error');
+        }
+    } catch (error) {
+        console.error('Error searching contacts:', error);
+        showMessage('Error searching contacts', 'error');
+    } finally {
+        hideLoadingState();
+    }
 }
 
 
@@ -196,6 +197,7 @@ function createContactModal(title, contact = {}) {
                     <label>Phone</label>
                     <input type="tel" name="phone" value="${contact.phone || ''}">
                 </div>
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
                     <button type="submit" class="btn btn-primary">
@@ -220,19 +222,27 @@ function createContactModal(title, contact = {}) {
 
 async function addContact(formData) {
     try {
+        const userId = sessionStorage.getItem('userId');
+        if (!userId) {
+            showMessage('Session expired. Please login again.', 'error');
+            window.location.href = './index.html';
+            return;
+        }
+        
         const contactData = {
             first_name: formData.get('first_name'),
             last_name: formData.get('last_name'),
             email: formData.get('email'),
             phone: formData.get('phone'),
-            user_id: sessionStorage.getItem('userId')
+            company: formData.get('company'),
+            notes: formData.get('notes'),
+            user_id: parseInt(userId)
         };
         
-        const response = await fetch('../api/addContact.php', {
+        const response = await fetch('/api/addContact.php', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + sessionStorage.getItem('userId')
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(contactData)
         });
@@ -256,17 +266,12 @@ async function addContact(formData) {
 
 async function viewContact(contactId) {
     try {
+        const contact = allContacts.find(c => c.id === contactId);
         
-        const response = await fetch(`../api/searchContacts.php?q=`, {
-            headers: {
-                'Authorization': 'Bearer ' + sessionStorage.getItem('userId')
-            }
-        });
-        
-        const data = await response.json();
-        const contact = data.contacts.find(c => c.id === contactId);
-        
-        if (!contact) return;
+        if (!contact) {
+            showMessage('Contact not found', 'error');
+            return;
+        }
         
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
@@ -280,9 +285,6 @@ async function viewContact(contactId) {
                     <p><strong>Name:</strong> ${escapeHtml(contact.first_name + ' ' + (contact.last_name || ''))}</p>
                     <p><strong>Email:</strong> ${escapeHtml(contact.email || 'N/A')}</p>
                     <p><strong>Phone:</strong> ${escapeHtml(contact.phone || 'N/A')}</p>
-                    <p><strong>Company:</strong> ${escapeHtml(contact.company || 'N/A')}</p>
-                    <p><strong>Group:</strong> ${escapeHtml(contact.group_name || 'None')}</p>
-                    <p><strong>Notes:</strong> ${escapeHtml(contact.notes || 'N/A')}</p>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" onclick="closeModal()">Close</button>
@@ -302,16 +304,12 @@ async function viewContact(contactId) {
 
 async function editContact(contactId) {
     try {
-        const response = await fetch(`../api/searchContacts.php?q=`, {
-            headers: {
-                'Authorization': 'Bearer ' + sessionStorage.getItem('userId')
-            }
-        });
+        const contact = allContacts.find(c => c.id === contactId);
         
-        const data = await response.json();
-        const contact = data.contacts.find(c => c.id === contactId);
-        
-        if (!contact) return;
+        if (!contact) {
+            showMessage('Contact not found', 'error');
+            return;
+        }
         
         const modal = createContactModal('Edit Contact', contact);
         document.body.appendChild(modal);
@@ -332,7 +330,6 @@ async function updateContact(contactId, formData) {
             phone: formData.get('phone'),
             company: formData.get('company'),
             notes: formData.get('notes'),
-            is_favorite: formData.get('is_favorite') ? 1 : 0
         };
         
         const response = await fetch('../api/updateContact.php', {
@@ -369,14 +366,18 @@ function deleteContact(contactId) {
 }
 
 async function performDelete(contactId) {
-     try {
-        const response = await fetch('../api/deleteContact.php', {
+    try {
+        const userId = sessionStorage.getItem('userId'); 
+        
+        const response = await fetch('/api/deleteContact.php', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + sessionStorage.getItem('userId')
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ id: contactId })
+            body: JSON.stringify({ 
+                contactid: contactId,  
+                userid: parseInt(userId)  
+            })
         });
         
         const data = await response.json();
@@ -384,9 +385,8 @@ async function performDelete(contactId) {
         if (data.success) {
             showMessage('Contact deleted successfully!', 'success');
             loadAllContacts();
-            loadDashboardStats();
         } else {
-            showMessage(data.message || 'Failed to delete contact', 'error');
+            showMessage(data.error || 'Failed to delete contact', 'error');
         }
     } catch (error) {
         console.error('Error deleting contact:', error);
