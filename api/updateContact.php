@@ -24,7 +24,7 @@ $id = $input['id'] ?? null;
 $first_name = $input['first_name'] ?? '';
 $last_name = $input['last_name'] ?? '';
 $email = $input['email'] ?? '';
-$phone = $input['phone'] ?? '';
+$phone_number = $input['phone'] ?? '';
 
 // Unique contact ID is required to edit contact information
 if(!$id) {

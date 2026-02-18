@@ -197,7 +197,6 @@ function createContactModal(title, contact = {}) {
                     <label>Phone</label>
                     <input type="tel" name="phone" value="${contact.phone || ''}">
                 </div>
-                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
                     <button type="submit" class="btn btn-primary">

@@ -115,7 +115,7 @@ while ($row = $result->fetch_assoc()) {
 }
 
 // send results back to the frontend
-echo json_encode(["results" => $contacts]);
+echo json_encode(["success" => true, "contacts" => $contacts]);
 
 // cleanup
 $stmt->close();
