@@ -34,6 +34,16 @@ if(!$id) {
     exit;
 }
 
+// Searching contact data before updating contact information
+$currentStmt = $conn->prepare("SELECT ID, FirstName, LastName, Email, PhoneNumber FROM Contacts WHERE ID = ?");
+$currentStmt->bind_param("i", $id);
+$currentStmt->execute();
+
+// Storing contact information
+$currentResult = $currentStmt->get_result();
+$currentData = $currentResult->fetch_assoc();
+$currentStmt->close();
+
 // Declares empty arrays that stores the information to be updated 
 $updates = [];
 $params = [];
@@ -81,8 +91,21 @@ $stmt->bind_param($types, ...$params);
 
 // Checks that contact was successfully updated
 if($stmt->execute()) {
+
+    // Searching and storing updated contact information for display
+    $updatedStmt = $conn->prepare("SELECT ID, FirstName, LastName, Email, PhoneNumber FROM Contacts WHERE ID = ?");
+    $updatedStmt->bind_param("i", $id);
+    $updatedStmt->execute();    
+
+    $result = $updatedStmt->get_result();
+    $updatedData = $result->fetch_assoc();
+
+    $updatedStmt->close();
+
     echo json_encode ([
-        "message" => "Contact updated"
+        "message" => "Contact updated",
+        "Original Contact Info" => $currentData,
+        "Updated Contact Info" => $updatedData
     ]);
 }
 else {
