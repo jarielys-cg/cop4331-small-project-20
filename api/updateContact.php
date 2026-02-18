@@ -11,7 +11,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // Connects to database
-$conn = new mysqli("localhost", "Group20Admin", "ContactManagerAccess", "ContactManager");
+$ENV = parse_ini_file(__DIR__ . '/../.env');
+$conn = new mysqli($ENV['DB_HOST'], $ENV['DB_USER'], $ENV['DB_PASS'], $ENV['DB_NAME']);
 
 if($conn->connect_error) {
     echo json_encode(["error" => $conn->connect_error]);
