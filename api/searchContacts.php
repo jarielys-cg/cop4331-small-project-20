@@ -110,9 +110,7 @@ while ($row = $result->fetch_assoc()) {
         'first_name' => $row['FirstName'],
         'last_name' => $row['LastName'],
         'email' => $row['Email'],
-        'phone' => $row['PhoneNumber'],
-        //'is_favorite' => $row['IsFavorite'],
-        //'group_id' => $row['GroupID']
+        'phone' => $row['PhoneNumber']
     ];
 }
 
@@ -122,4 +120,3 @@ echo json_encode(["results" => $contacts]);
 // cleanup
 $stmt->close();
 $conn->close();
-
