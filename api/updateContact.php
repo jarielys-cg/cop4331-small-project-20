@@ -104,6 +104,7 @@ if($stmt->execute()) {
     $updatedStmt->close();
 
     echo json_encode ([
+        "success" => "true",
         "message" => "Contact updated",
         "Original Contact Info" => $currentData,
         "Updated Contact Info" => $updatedData
