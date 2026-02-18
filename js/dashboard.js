@@ -252,7 +252,7 @@ async function addContact(formData) {
             showMessage('Contact added successfully!', 'success');
             closeModal();
             loadAllContacts();
-            loadDashboardStats();
+            //loadDashboardStats();
         } else {
             showMessage(data.message || 'Failed to add contact', 'error');
         }
