@@ -39,14 +39,9 @@ if ($userId === null) {
 $userId = (int)$userId;
 $search = trim((string)$search);
 
-// database connection info
-$DB_HOST = "localhost";
-$DB_USER = "Group20Admin";
-$DB_PASS = "ContactManagerAccess";
-$DB_NAME = "ContactManager";
-
 // connect to the database
-$conn = new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
+$ENV = parse_ini_file(__DIR__ . '/../.env');
+$conn = new mysqli($ENV['DB_HOST'], $ENV['DB_USER'], $ENV['DB_PASS'], $ENV['DB_NAME']);
 
 // stop if the connection failed
 if ($conn->connect_error) {
