@@ -1,53 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <title>Personal Contact Manager</title>
-        <link rel="stylesheet" type="text/css" href="../css/signup.css">
-        <script src="../js/index.js"></script>
-    </head>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <body>
+    <title>Personal Contact Manager</title>
+    <link rel="stylesheet" type="text/css" href="../css/signup.css">
+    <script src="../js/index.js"></script>
+</head>
 
-        <div class="main-container">
+<body>
 
-            <div class ="logo-container">
-               <h1 class="pcm-logo"><a href="index.html">Personal Contact Manager</a></h1> 
-            </div>
-            
+    <main class="main-container">
 
-            <div class="register-box">
-                <form class="signup-entry" onsubmit="return handleRegister(event)">
+        <div class="logo-container">
+            <h1 class="pcm-logo"><a href="index.html">Personal Contact Manager</a></h1>
+        </div>
 
-                    <div class="input-row">
-                        <input type="email" id="email" name="email" placeholder="Email" required pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"> <br><br>
-                    </div>
 
-                    <div class="input-row">
-                        <input type="text" id="username" name="username" placeholder="Username" required> <br><br>
-                    </div>
-                
-                    <div class="input-row">
-                        <input type="password" id="password" name="password" placeholder="Password" required> <br><br>
-                    </div>
+        <div class="register-box">
+            <form class="signup-entry" onsubmit="return handleRegister(event)">
 
-                    <div class="input-row">
-                        <input type="password" id="passwordconfirm" name="passwordconfirm" placeholder="Confirm Password"required> <br><br>
-                    </div>
+                <div class="input-row">
+                    <input type="email" id="email" name="email" placeholder="Email" required
+                        pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"> <br><br>
+                </div>
 
-                    <button type="submit" class="register-button">Register</button>
+                <div class="input-row">
+                    <input type="text" id="username" name="username" placeholder="Username" required> <br><br>
+                </div>
 
-                   <p class="backToLogin">
-                        Already have an account? <a href="index.html" class="backtologin" ><b>Login</b></a>
-                    </p> 
+                <div class="input-row">
+                    <input type="password" id="password" name="password" placeholder="Password" required> <br><br>
+                </div>
 
-                </form>
-  
-            </div>
+                <div class="input-row">
+                    <input type="password" id="passwordconfirm" name="passwordconfirm" placeholder="Confirm Password"
+                        required> <br><br>
+                </div>
+
+                <button type="submit" class="register-button">Register</button>
+
+                <p class="backToLogin">
+                    Already have an account? <a href="index.html" class="backtologin"><b>Login</b></a>
+                </p>
+
+            </form>
 
         </div>
-       
-    </body>
+
+    </main>
+
+</body>
+
 </html>
