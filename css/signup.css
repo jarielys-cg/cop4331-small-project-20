@@ -88,7 +88,8 @@ body {
 }
 
 .register-button {
-    background-color: #3b82f6;
+    background-color: #2563eb;
+    ;
     color: #ffffff;
     font-size: 20px;
     font-weight: 700;
@@ -100,7 +101,7 @@ body {
 }
 
 .register-button:hover {
-    background-color: #2563eb;
+    background-color: #1d4ed8;
 
 }
 
