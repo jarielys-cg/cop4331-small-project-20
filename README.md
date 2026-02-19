@@ -110,4 +110,13 @@ To access and test the web application, open a broswer and type the domain name 
 ```
 http://cop4331cs.xyz
 ```
-## AI Assistance Disclosure
+## AI Assistance
+
+* **Tool**: ChatGPT 5.2 (chatgpt.com)
+* **Dates**: February 18-19, 2026
+* **Scope**: Implementation of error checking on login and signup and informing the user
+* **Use**: Generated duplicate username handling for signup API and additions to validation of login and signup forms JavaScript code(modified).
+
+All AI-generated code was reviewed, tested, and modified to meet
+assignment requirements. Final implementation reflects my understanding
+of the concepts.
