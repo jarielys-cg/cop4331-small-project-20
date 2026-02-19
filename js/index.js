@@ -7,32 +7,39 @@ function redirectToRegistration() {
 }
 
 function validateLoginForm() {
-    let error = false;
+    const usernameInput = document.getElementById("username");
+    const passwordInput = document.getElementById("password");
 
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value;
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value;
 
-    const errorMessageDisplay = document.createElement("div");
-    errorMessageDisplay.className = "error-message";
-    let errorMessageContent = "";
+    let isValid = true;
 
-    const existingErrorMessage = document.querySelector(".error-message");
-    if (existingErrorMessage) {
-        existingErrorMessage.remove();
-    }
+    // Remove old error message
+    const existingError = document.querySelector(".error-message");
+    if (existingError) existingError.remove();
+
+    // Remove old red styling
+    usernameInput.classList.remove("input-error");
+    passwordInput.classList.remove("input-error");
 
     if (!username || !password) {
-        errorMessageContent = "All fields are required.";
-        error = true;
+        isValid = false;
+
+        // Add red styling
+        usernameInput.classList.add("input-error");
+        passwordInput.classList.add("input-error");
+
+        // Show error message
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "error-message";
+        errorDiv.textContent = "All fields are required.";
+
+        const passwordRow = document.querySelectorAll(".input-row")[1];
+        passwordRow.after(errorDiv);
     }
 
-    if (error) {
-        errorMessageDisplay.textContent = errorMessageContent;
-        const passwordDiv = document.querySelector(".password-entry");
-        passwordDiv.after(errorMessageDisplay);
-    }
-
-    return !error;
+    return isValid;
 
 }
 
@@ -44,9 +51,12 @@ function handleLogin(event) {
 }
 
 async function callLoginAPI() {
+    const usernameInput = document.getElementById("username");
+    const passwordInput = document.getElementById("password");
+
     const data = {
-        username: document.getElementById("username").value.trim(),
-        password: document.getElementById("password").value
+        username: usernameInput.value.trim(),
+        password: passwordInput.value
     };
 
     try {
@@ -60,20 +70,30 @@ async function callLoginAPI() {
 
         const result = await response.json();
 
+        // Remove old error message
+        const existingError = document.querySelector(".error-message");
+        if (existingError) existingError.remove();
+
+        // Remove old red styling
+        usernameInput.classList.remove("input-error");
+        passwordInput.classList.remove("input-error");
+
         if (result.success) {
             sessionStorage.setItem('userId', result.id);
             sessionStorage.setItem('username', result.username);
             window.location.href = './dashboard.html';
         } else {
-            const existingError = document.querySelector(".error-message");
-            if (existingError) {
-                existingError.remove();
-            }
+            // Add red styling
+            usernameInput.classList.add("input-error");
+            passwordInput.classList.add("input-error");
+
+            // Show error message
             const errorDiv = document.createElement("div");
             errorDiv.className = "error-message";
-            errorDiv.textContent = result.error;
-            const passwordDiv = document.querySelector(".password-entry");
-            passwordDiv.after(errorDiv);
+            errorDiv.textContent = "Inavlid username or password.";
+
+            const passwordRow = document.querySelectorAll(".input-row")[1];
+            passwordRow.after(errorDiv);
         }
     } catch (err) {
         console.error('Fetch error:', err);
@@ -154,8 +174,7 @@ async function AddToDatabase() {
         const result = await response.json();
         console.log(result);
 
-        if (result.success)
-        {
+        if (result.success) {
             const loginResponse = await fetch('http://134.199.200.89/api/login.php',
                 {
                     method: 'POST',
