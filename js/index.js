@@ -1,11 +1,14 @@
+// Redirect to login page
 function redirectToLogin() {
     window.location.href = "./index.html";
 }
 
+// Redirect to registration page
 function redirectToRegistration() {
     window.location.href = "./signup.html";
 }
 
+// Validate login form
 function validateLoginForm() {
     const usernameInput = document.getElementById("username");
     const passwordInput = document.getElementById("password");
@@ -43,6 +46,7 @@ function validateLoginForm() {
 
 }
 
+// Handle login form submission
 function handleLogin(event) {
     event.preventDefault();
     if (validateLoginForm()) {
@@ -50,6 +54,7 @@ function handleLogin(event) {
     }
 }
 
+// Call login API
 async function callLoginAPI() {
     const usernameInput = document.getElementById("username");
     const passwordInput = document.getElementById("password");
@@ -90,7 +95,7 @@ async function callLoginAPI() {
             // Show error message
             const errorDiv = document.createElement("div");
             errorDiv.className = "error-message";
-            errorDiv.textContent = "Inavlid username or password.";
+            errorDiv.textContent = "Invalid username or password.";
 
             const passwordRow = document.querySelectorAll(".input-row")[1];
             passwordRow.after(errorDiv);
@@ -100,6 +105,7 @@ async function callLoginAPI() {
     }
 }
 
+// Validate registration form
 function validateRegistrationForm() {
     let isError = false;
 
@@ -121,11 +127,13 @@ function validateRegistrationForm() {
 
     let errorMessageContent = "";
 
+    // Remove old error message
     const existingErrorMessage = document.querySelector(".error-message");
     if (existingErrorMessage) {
         existingErrorMessage.remove();
     }
 
+    // Validate fields
     if (!email || !username || !password || !passwordConfirm) {
         errorMessageContent = "All fields are required.";
         if (!email) emailInput.classList.add("input-error");
@@ -134,11 +142,13 @@ function validateRegistrationForm() {
         if (!passwordConfirm) passwordConfirmInput.classList.add("input-error");
         isError = true;
     }
+    // Validate email format
     else if (!emailRegex.test(email)) {
         errorMessageContent = "Invalid email format.";
         emailInput.classList.add("input-error");
         isError = true;
     }
+    // Validate password match
     else if (password !== passwordConfirm) {
         errorMessageContent = "Passwords do not match.";
         passwordInput.classList.add("input-error");
@@ -146,6 +156,7 @@ function validateRegistrationForm() {
         isError = true;
     }
 
+    // Show error message if there is an error
     if (isError) {
         const errorDiv = document.createElement("div");
         errorDiv.className = "error-message";
@@ -158,6 +169,7 @@ function validateRegistrationForm() {
     return !isError;
 }
 
+// Handle registration form submission
 function handleRegister(event) {
     event.preventDefault();
 
@@ -168,6 +180,7 @@ function handleRegister(event) {
     return false;
 }
 
+// Call registration API
 async function AddToDatabase() {
     const usernameInput = document.getElementById("username");
     const passwordInput = document.getElementById("password");
@@ -185,6 +198,7 @@ async function AddToDatabase() {
     };
 
     try {
+        // Call signup API
         const response = await fetch('http://134.199.200.89/api/signup.php',
             {
                 method: 'POST',
@@ -198,6 +212,7 @@ async function AddToDatabase() {
         const result = await response.json();
         console.log(result);
 
+        // If registration is successful, automatically log in the user and redirect to dashboard
         if (result.success) {
             const loginResponse = await fetch('http://134.199.200.89/api/login.php',
                 {
@@ -215,6 +230,7 @@ async function AddToDatabase() {
                 window.location.href = "dashboard.html"
             }
         }
+        // If registration fails, show error message
         else {
             // Show API error on the page
             if (result.error && result.error.toLowerCase().includes("username")) {
