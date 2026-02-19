@@ -25,23 +25,39 @@
     $password = $input['password'] ?? ''; //password or empty string
     $email = $input['email'] ?? ''; //email or empty string
     
+    // Check if username already exists
+    $checkStmt = $conn->prepare("SELECT id FROM Users WHERE Username = ?");
+    $checkStmt->bind_param("s", $username);
+    $checkStmt->execute();
+    $checkStmt->store_result();
+
+    if ($checkStmt->num_rows > 0) {
+        echo json_encode([
+            "success" => false,
+            "error" => "Username already taken"
+        ]);
+        $checkStmt->close();
+        $conn->close();
+        exit;
+    }
+    $checkStmt->close();
+
+    // Now safe to insert
     $stmt = $conn->prepare("INSERT INTO Users (`Username`, `Password`, `Email`) VALUES (?, ?, ?)");
     $stmt->bind_param("sss", $username, $password, $email);
-    
-    if ($stmt->execute()) 
-    {
+
+    if ($stmt->execute()) {
         echo json_encode([
             "success" => true,
             "id" => $stmt->insert_id
         ]);
-    } 
-    else 
-    {
+    } else {
         echo json_encode([
             "success" => false,
-            "error" => $stmt->error
+            "error" => "Registration failed. Please try again."
         ]);
     }
+
 
     $stmt->close();
     $conn->close();
