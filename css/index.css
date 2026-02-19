@@ -130,6 +130,16 @@ body {
     background-color: #1d4ed8;
 }
 
+.input-error {
+    border: 2px solid #dc3545 !important;
+    background-color: #fff5f5;
+}
+
+.input-error:focus {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2);
+}
+
 
 hr {
     border: none;
