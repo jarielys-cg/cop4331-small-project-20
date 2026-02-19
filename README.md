@@ -112,6 +112,11 @@ http://cop4331cs.xyz
 ```
 ## AI Assistance
 
+- **Tool**: Claude Opus 4.6 (Anthropic, claude.ai)
+- **Dates**: Feb 7-9, 2026
+- **Scope**: Designing dashboard modal javascript for adding contacts and css styling for the modal
+- **Use**: Generated form structure and styling for  add contact modal.  (substantially modified)
+
 * **Tool**: ChatGPT 5.2 (chatgpt.com)
 * **Dates**: February 18-19, 2026
 * **Scope**: Implementation of error checking on login and signup and informing the user
