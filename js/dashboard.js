@@ -1,7 +1,7 @@
 
 
-document.addEventListener('DOMContentLoaded', function() {
-    
+document.addEventListener('DOMContentLoaded', function () {
+
     checkAuthentication();
     loadAllContacts();
     setupEventListeners();
@@ -21,7 +21,7 @@ function setupEventListeners() {
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         let searchTimeout;
-        searchInput.addEventListener('input', function(event) {
+        searchInput.addEventListener('input', function (event) {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 handleSearch(event);
@@ -31,7 +31,7 @@ function setupEventListeners() {
 
     const filterSelect = document.querySelector('.filter-select');
     if (filterSelect) {
-        filterSelect.addEventListener('change',handleFilter);
+        filterSelect.addEventListener('change', handleFilter);
     }
 
     const addButton = document.getElementById('addContactBtn');
@@ -42,19 +42,19 @@ function setupEventListeners() {
 
 async function handleSearch(event) {
     const searchTerm = event.target.value.trim();
-    
+
     try {
         showLoadingState();
-        
+
         const response = await fetch(`../api/searchContacts.php?q=${encodeURIComponent(searchTerm)}`, {
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + sessionStorage.getItem('userId')
             }
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             displayContacts(data.contacts);
         } else {
@@ -70,21 +70,21 @@ async function handleSearch(event) {
 
 
 async function loadAllContacts() {
-     try {
+    try {
         showLoadingState();
-        
-         const userId = sessionStorage.getItem('userId');
+
+        const userId = sessionStorage.getItem('userId');
         if (!userId) {
             console.error('No userId in session');
             window.location.href = './index.html';
             return;
         }
-         const response = await fetch(`/api/searchContacts.php?userId=${userId}&q=`, {
+        const response = await fetch(`/api/searchContacts.php?userId=${userId}&q=`, {
             method: 'GET'
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             allContacts = data.contacts;
             displayContacts(allContacts);
@@ -102,9 +102,9 @@ async function loadAllContacts() {
 
 function displayContacts(contacts) {
     const tbody = document.querySelector('.contact-table tbody');
-    
+
     if (!tbody) return;
-    
+
     if (contacts.length === 0) {
         tbody.innerHTML = `
             <tr>
@@ -115,12 +115,13 @@ function displayContacts(contacts) {
         `;
         return;
     }
-    
+
     tbody.innerHTML = contacts.map(contact => `
         <tr data-contact-id="${contact.id}">
             <td>${escapeHtml(contact.first_name + ' ' + (contact.last_name || ''))}</td>
             <td>${escapeHtml(contact.phone || 'N/A')}</td>
             <td>${escapeHtml(contact.email || 'N/A')}</td>
+            <td>${escapeHtml(contact.created_at || 'N/A')}</td>
             <td>
                 <button class="btn btn-sm btn-primary" onclick="viewContact(${contact.id})">View</button>
                 <button class="btn btn-sm btn-secondary" onclick="editContact(${contact.id})">Edit</button>
@@ -133,24 +134,24 @@ function displayContacts(contacts) {
 
 async function handleSearch(event) {
     const searchTerm = event.target.value.trim();
-    
+
     try {
         showLoadingState();
-        
+
         const userId = sessionStorage.getItem('userId');
         if (!userId) {
             window.location.href = './index.html';
             return;
         }
-        
+
         const response = await fetch(`/api/searchContacts.php?userId=${userId}&q=${encodeURIComponent(searchTerm)}`, {
             method: 'GET'
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
-            allContacts = data.contacts; 
+            allContacts = data.contacts;
             displayContacts(data.contacts);
         } else {
             showMessage('Search failed', 'error');
@@ -205,7 +206,7 @@ function createContactModal(title, contact = {}) {
             </form>
         </div>
     `;
-        
+
     modal.querySelector('form').addEventListener('submit', (e) => {
         e.preventDefault();
         if (contact.id) {
@@ -214,7 +215,7 @@ function createContactModal(title, contact = {}) {
             addContact(new FormData(e.target));
         }
     });
-    
+
     return modal;
 }
 
@@ -226,7 +227,7 @@ async function addContact(formData) {
             window.location.href = './index.html';
             return;
         }
-        
+
         const contactData = {
             first_name: formData.get('first_name'),
             last_name: formData.get('last_name'),
@@ -236,7 +237,7 @@ async function addContact(formData) {
             notes: formData.get('notes'),
             user_id: parseInt(userId)
         };
-        
+
         const response = await fetch('/api/addContact.php', {
             method: 'POST',
             headers: {
@@ -244,9 +245,9 @@ async function addContact(formData) {
             },
             body: JSON.stringify(contactData)
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             showMessage('Contact added successfully!', 'success');
             closeModal();
@@ -265,12 +266,12 @@ async function addContact(formData) {
 async function viewContact(contactId) {
     try {
         const contact = allContacts.find(c => c.id === contactId);
-        
+
         if (!contact) {
             showMessage('Contact not found', 'error');
             return;
         }
-        
+
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
         modal.innerHTML = `
@@ -283,6 +284,7 @@ async function viewContact(contactId) {
                     <p><strong>Name:</strong> ${escapeHtml(contact.first_name + ' ' + (contact.last_name || ''))}</p>
                     <p><strong>Email:</strong> ${escapeHtml(contact.email || 'N/A')}</p>
                     <p><strong>Phone:</strong> ${escapeHtml(contact.phone || 'N/A')}</p>
+                    <p><strong>Date Created:</strong> ${escapeHtml(contact.created_at || 'N/A')}</p>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" onclick="closeModal()">Close</button>
@@ -290,7 +292,7 @@ async function viewContact(contactId) {
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(modal);
         modal.style.display = 'block';
     } catch (error) {
@@ -303,12 +305,12 @@ async function viewContact(contactId) {
 async function editContact(contactId) {
     try {
         const contact = allContacts.find(c => c.id === contactId);
-        
+
         if (!contact) {
             showMessage('Contact not found', 'error');
             return;
         }
-        
+
         const modal = createContactModal('Edit Contact', contact);
         document.body.appendChild(modal);
         modal.style.display = 'block';
@@ -319,7 +321,7 @@ async function editContact(contactId) {
 }
 
 async function updateContact(contactId, formData) {
-   try {
+    try {
         const contactData = {
             id: contactId,
             first_name: formData.get('first_name'),
@@ -329,7 +331,7 @@ async function updateContact(contactId, formData) {
             company: formData.get('company'),
             notes: formData.get('notes'),
         };
-        
+
         const response = await fetch('../api/updateContact.php', {
             method: 'POST',
             headers: {
@@ -338,9 +340,9 @@ async function updateContact(contactId, formData) {
             },
             body: JSON.stringify(contactData)
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             showMessage('Contact updated successfully!', 'success');
             closeModal();
@@ -359,27 +361,27 @@ function deleteContact(contactId) {
     if (!confirm(`Are you sure you want to delete this contact?`)) {
         return;
     }
-    
+
     performDelete(contactId);
 }
 
 async function performDelete(contactId) {
     try {
-        const userId = sessionStorage.getItem('userId'); 
-        
+        const userId = sessionStorage.getItem('userId');
+
         const response = await fetch('/api/deleteContact.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ 
-                contactid: contactId,  
-                userid: parseInt(userId)  
+            body: JSON.stringify({
+                contactid: contactId,
+                userid: parseInt(userId)
             })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             showMessage('Contact deleted successfully!', 'success');
             loadAllContacts();
@@ -434,7 +436,7 @@ function showMessage(message, type) {
     if (existingMessage) {
         existingMessage.remove();
     }
-    
+
     const messageDiv = document.createElement('div');
     messageDiv.className = `alert-message alert-${type}`;
     messageDiv.textContent = message;
@@ -447,11 +449,11 @@ function showMessage(message, type) {
         font-weight: 500;
         z-index: 10000;
         animation: slideIn 0.3s ease-out;
-        ${type === 'error' 
-            ? 'background-color: #fee; color: #c00; border: 1px solid #fcc;' 
+        ${type === 'error'
+            ? 'background-color: #fee; color: #c00; border: 1px solid #fcc;'
             : 'background-color: #efe; color: #060; border: 1px solid #cfc;'}
     `;
-    
+
     document.body.appendChild(messageDiv);
 
     setTimeout(() => {
