@@ -299,7 +299,7 @@ async function viewContact(contactId) {
                     <p><strong>Name:</strong> ${escapeHtml(contact.first_name + ' ' + (contact.last_name || ''))}</p>
                     <p><strong>Email:</strong> ${escapeHtml(contact.email || 'N/A')}</p>
                     <p><strong>Phone:</strong> ${escapeHtml(contact.phone || 'N/A')}</p>
-                    <p><strong>Date Created:</strong> ${escapeHtml(contact.created_at || 'N/A')}</p>
+                    <p><strong>Date Created:</strong> ${escapeHtml(convertToLocalDate(contact.created_at) || 'N/A')}</p>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" onclick="closeModal()">Close</button>
