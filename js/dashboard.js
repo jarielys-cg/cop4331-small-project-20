@@ -99,6 +99,21 @@ async function loadAllContacts() {
     }
 }
 
+function convertToLocalDate(utc) {
+    if (!utc) return 'N/A';
+
+    // If your DB format is "YYYY-MM-DD HH:MM:SS"
+    const date = new Date(utc + " UTC");
+
+    return date.toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit'
+    });
+}
+
 
 function displayContacts(contacts) {
     const tbody = document.querySelector('.contact-table tbody');
@@ -121,7 +136,7 @@ function displayContacts(contacts) {
             <td>${escapeHtml(contact.first_name + ' ' + (contact.last_name || ''))}</td>
             <td>${escapeHtml(contact.phone || 'N/A')}</td>
             <td>${escapeHtml(contact.email || 'N/A')}</td>
-            <td>${escapeHtml(contact.created_at || 'N/A')}</td>
+            <td>${escapeHtml(convertToLocalDate(contact.created_at))}</td>
             <td>
                 <button class="btn btn-sm btn-primary" onclick="viewContact(${contact.id})">View</button>
                 <button class="btn btn-sm btn-secondary" onclick="editContact(${contact.id})">Edit</button>
