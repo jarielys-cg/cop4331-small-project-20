@@ -13,7 +13,7 @@ function validateLoginForm() {
     const username = usernameInput.value.trim();
     const password = passwordInput.value;
 
-    let isValid = true;
+    let isError = false;
 
     // Remove old error message
     const existingError = document.querySelector(".error-message");
@@ -24,7 +24,7 @@ function validateLoginForm() {
     passwordInput.classList.remove("input-error");
 
     if (!username || !password) {
-        isValid = false;
+        isError = true;
 
         // Add red styling
         usernameInput.classList.add("input-error");
@@ -39,7 +39,7 @@ function validateLoginForm() {
         passwordRow.after(errorDiv);
     }
 
-    return isValid;
+    return !isError;
 
 }
 
@@ -103,14 +103,21 @@ async function callLoginAPI() {
 function validateRegistrationForm() {
     let isError = false;
 
-    const email = document.getElementById("email").value.trim();
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value;
-    const passwordConfirm = document.getElementById("passwordconfirm").value;
+    const emailInput = document.getElementById("email");
+    const usernameInput = document.getElementById("username");
+    const passwordInput = document.getElementById("password");
+    const passwordConfirmInput = document.getElementById("passwordconfirm");
+
+    const email = emailInput.value.trim();
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value;
+    const passwordConfirm = passwordConfirmInput.value;
+
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-    const errorMessageDisplay = document.createElement("div");
-    errorMessageDisplay.className = "error-message";
+    // Remove old errors
+    document.querySelectorAll(".error-message").forEach(e => e.remove());
+    document.querySelectorAll(".input-error").forEach(e => e.classList.remove("input-error"));
 
     let errorMessageContent = "";
 
@@ -121,23 +128,31 @@ function validateRegistrationForm() {
 
     if (!email || !username || !password || !passwordConfirm) {
         errorMessageContent = "All fields are required.";
+        if (!email) emailInput.classList.add("input-error");
+        if (!username) usernameInput.classList.add("input-error");
+        if (!password) passwordInput.classList.add("input-error");
+        if (!passwordConfirm) passwordConfirmInput.classList.add("input-error");
         isError = true;
     }
     else if (!emailRegex.test(email)) {
         errorMessageContent = "Invalid email format.";
+        emailInput.classList.add("input-error");
         isError = true;
-        document.getElementById("email").focus();
     }
     else if (password !== passwordConfirm) {
         errorMessageContent = "Passwords do not match.";
+        passwordInput.classList.add("input-error");
+        passwordConfirmInput.classList.add("input-error");
         isError = true;
     }
 
     if (isError) {
-        errorMessageDisplay.textContent = errorMessageContent;
-        const passwordConfirmDiv = document.querySelector(".passwordconfirm-entry");
-        passwordConfirmDiv.after(errorMessageDisplay);
-        return false;
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "error-message";
+        errorDiv.textContent = errorMessageContent;
+
+        const confirmRow = passwordConfirmInput.closest(".input-row");
+        confirmRow.after(errorDiv);
     }
 
     return !isError;
@@ -154,10 +169,19 @@ function handleRegister(event) {
 }
 
 async function AddToDatabase() {
+    const usernameInput = document.getElementById("username");
+    const passwordInput = document.getElementById("password");
+    const passwordConfirmInput = document.getElementById("passwordconfirm");
+    const emailInput = document.getElementById("email");
+
+    // Remove old errors
+    document.querySelectorAll(".error-message").forEach(e => e.remove());
+    document.querySelectorAll(".input-error").forEach(e => e.classList.remove("input-error"));
+
     const data = {
-        username: document.getElementById("username").value,
-        password: document.getElementById("password").value,
-        email: document.getElementById("email").value
+        username: usernameInput.value.trim(),
+        password: passwordInput.value,
+        email: emailInput.value.trim()
     };
 
     try {
@@ -192,7 +216,26 @@ async function AddToDatabase() {
             }
         }
         else {
-            alert('Error: ' + result.error);
+            // Show API error on the page
+            if (result.error && result.error.toLowerCase().includes("username")) {
+                usernameInput.classList.add("input-error");
+
+                // Show error message
+                const errorDiv = document.createElement("div");
+                errorDiv.className = "error-message";
+                errorDiv.textContent = "Username already taken.";
+
+                const confirmRow = passwordConfirmInput.closest(".input-row");
+                confirmRow.after(errorDiv);
+            } else {
+                // Show error message
+                const errorDiv = document.createElement("div");
+                errorDiv.className = "error-message";
+                errorDiv.textContent = "Registration failed. Please try again.";
+
+                const confirmRow = passwordConfirmInput.closest(".input-row");
+                confirmRow.after(errorDiv);
+            }
         }
     }
     catch (err) {
