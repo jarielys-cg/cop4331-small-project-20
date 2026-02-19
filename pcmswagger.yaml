@@ -1,0 +1,280 @@
+swagger: '2.0'
+info:
+  title: Personal Contact Manager
+  version: 1.0.0
+  description: API documentation for a Personal Contact Manager Web App
+
+  contact:
+    name: Group 20 API Team
+  x-team-contacts:
+    - name: Wesley Wild
+    - name: Khadijah Shamim
+    - name: Ruben Bernard
+    - name: Jarielys Cruz Gomez
+    
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+paths: 
+  /login.php:
+    post:
+      tags: 
+      - Users
+      summary: Logs in to the personal contact manager app
+      operationId: login
+      description: Logs existing user to personal contact manager app
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: loginItem
+        description: Login
+        schema:
+          $ref: '#/definitions/login'
+      responses:
+        200:
+          description: OK
+        404:
+          description: URL Not Found
+        500:
+          description: Server Error
+
+  /signup.php:
+    post:
+      tags: 
+      - Users
+      summary: Creates account in personal contact manager app
+      operationId: signup
+      description: Creates an account for new users in personal contact manager app
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: signupItem
+        description: Signup
+        schema:
+          $ref: '#/definitions/signup'
+      responses:
+        200:
+          description: OK
+        404:
+          description: URL Not Found
+        500:
+          description: Server Error
+
+  /addContact.php:
+    post:
+      tags: 
+      - Add
+      summary: Adds a contact
+      operationId: addContact
+      description: Adds a new contact to database
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: addItem
+        description: Adds contact
+        schema:
+          $ref: '#/definitions/addContact'
+      responses:
+        200:
+          description: OK
+        404:
+          description: URL Not Found
+        500:
+          description: Server Error
+
+  /searchContacts.php:
+    post:
+      tags: 
+      - Search
+      summary: Search for contact
+      operationId: searchContact
+      description: Searches for contact using partial matching
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: searchItem
+        description: Searches for contacts
+        schema:
+          $ref: '#/definitions/searchContacts'
+      responses:
+        200:
+          description: OK
+        404:
+          description: URL Not Found
+        500:
+          description: Server Error
+
+  /updateContact.php:
+    post:
+      tags: 
+      - Edit
+      summary: Edits contact info
+      operationId: editContact
+      description: Edits contact information in database
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: editItem
+        description: Edits contact info
+        schema:
+          $ref: '#/definitions/editContact'
+      responses:
+        200:
+          description: OK
+        404:
+          description: URL Not Found
+        500:
+          description: Server Error
+
+  /deleteContact.php:
+    post:
+      tags: 
+      - Delete
+      summary: Deletes a contact 
+      operationId: deleteContact
+      description: Removes contact information from database
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: deleteItem
+        description: Deletes a contact info
+        schema:
+          $ref: '#/definitions/deleteContact'
+      responses:
+        200:
+          description: OK
+        404:
+          description: URL Not Found
+        500:
+          description: Server Error
+
+definitions:
+  login:
+    type: object
+    required:
+      - username
+      - password
+    properties:
+      username:
+        type: string
+        example: "AYadavally"
+      password:
+        type: string
+        example: "COP4331"
+
+  signup:
+    type: object
+    required:
+      - username
+      - password
+      - email
+    properties:
+      username:
+        type: string
+        example: "john20"
+      password:
+        type: string
+        example: "cop4331_20"
+      email:
+        type: string
+        example: "john20@gmail.com"
+
+  addContact:
+    type: object
+    required:
+      - first_name
+      - last_name
+      - email
+      - phone
+      - user_id
+    properties:
+      first_name:
+        type: string
+        example: "Amy"
+      last_name:
+        type: string
+        example: "Santiago"
+      email:
+        type: string
+        example: "amy.s@gmail.com"
+      phone:
+        type: string
+        example: "561-555-0105"
+      user_id:
+        type: integer
+        example: 3
+
+  searchContacts:
+    type: object
+    required:
+      - userId
+      - search
+    properties:
+      userId:
+        type: integer
+        example: 3
+      search:
+        type: string
+        example: "Alex"
+  
+  editContact:
+    type: object
+    required:
+      - id
+      - first_name
+      - last_name
+      - email
+      - phone
+    properties:
+      id:
+        type: integer
+        example: 7
+      first_name:
+        type: string
+        example: "Olandria"
+      last_name:
+        type: string
+        example: "Santiago"
+      email:
+        type: string
+        example: "olanS@gmail.com"
+      phone:
+        type: string
+        example: "813-555-0106"
+
+  deleteContact:
+    type: object
+    required:
+      - contactid
+      - userid
+    properties:
+      contactid:
+        type: integer
+        example: 11
+      userid:
+        type: integer
+        example: 3
+
+host: cop4331cs.xyz
+basePath: /api
+schemes:
+- http
