@@ -36,7 +36,7 @@ if(!$id) {
 }
 
 // Searching contact data before updating contact information
-$currentStmt = $conn->prepare("SELECT ID, FirstName, LastName, Email, PhoneNumber FROM Contacts WHERE ID = ?");
+$currentStmt = $conn->prepare("SELECT ID, FirstName, LastName, Email, PhoneNumber, CreatedAt FROM Contacts WHERE ID = ?");
 $currentStmt->bind_param("i", $id);
 $currentStmt->execute();
 
@@ -94,7 +94,7 @@ $stmt->bind_param($types, ...$params);
 if($stmt->execute()) {
 
     // Searching and storing updated contact information for display
-    $updatedStmt = $conn->prepare("SELECT ID, FirstName, LastName, Email, PhoneNumber FROM Contacts WHERE ID = ?");
+    $updatedStmt = $conn->prepare("SELECT ID, FirstName, LastName, Email, PhoneNumber, CreatedAt FROM Contacts WHERE ID = ?");
     $updatedStmt->bind_param("i", $id);
     $updatedStmt->execute();    
 

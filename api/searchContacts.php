@@ -61,7 +61,8 @@ SELECT
   LastName,
   Email,
   PhoneNumber,
-  UserID
+  UserID,
+  CreatedAt
 FROM Contacts
 WHERE UserID = ?
   AND (
@@ -105,7 +106,8 @@ while ($row = $result->fetch_assoc()) {
         'first_name' => $row['FirstName'],
         'last_name' => $row['LastName'],
         'email' => $row['Email'],
-        'phone' => $row['PhoneNumber']
+        'phone' => $row['PhoneNumber'],
+        'created_at' => $row['CreatedAt']
     ];
 }
 
