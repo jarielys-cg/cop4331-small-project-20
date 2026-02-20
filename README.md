@@ -132,6 +132,16 @@ http://cop4331cs.xyz
 * **Scope**: Help with API concepts and php syntax
 * **Use**: Getting inputs from frontend to the endpoint. Creating .env file
 
+- **Tool**: ChatGPT 5.2 (chatgpt.com)
+- **Dates**: February 18, 2026
+- **Scope**: Implementation of local time zone conversion
+- **Use**: Generated a function to convert UTC time to local time zone of a user
+
+* **Tool**: ChatGPT 5.2 (chatgpt.com)
+* **Dates**: February 19, 2026
+* **Scope**: Assistance with time zone conversion bug on Safari
+* **Use**: Received help with correcting time format to be compatible with Safari
+
 All AI-generated code was reviewed, tested, and modified to meet
 assignment requirements. Final implementation reflects my understanding
 of the concepts.
