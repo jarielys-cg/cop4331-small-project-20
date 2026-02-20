@@ -127,6 +127,11 @@ http://cop4331cs.xyz
 - **Scope**: Clarification of API concepts and minor backend debugging guidance related to user search and delete endpoint implementation.
 - **Use**: Consulted for understanding JSON input handling and SQL DELETE statement structure.
 
+* **Tool**: ChatGPT 5.2 (chatgpt.com)
+* **Dates**: February 1–16, 2026
+* **Scope**: Help with API concepts and php syntax
+* **Use**: Getting inputs from frontend to the endpoint. Creating .env file
+
 All AI-generated code was reviewed, tested, and modified to meet
 assignment requirements. Final implementation reflects my understanding
 of the concepts.
