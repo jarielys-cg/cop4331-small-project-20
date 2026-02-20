@@ -105,8 +105,9 @@ async function loadAllContacts() {
 function convertToLocalDate(utc) {
     if (!utc) return 'N/A';
 
-    const date = new Date(utc + " UTC");
-
+    const formatDate = utc.replace(' ', 'T');
+    const date = new Date(formatDate + "Z");
+    
     return date.toLocaleString(undefined, {
         year: 'numeric',
         month: 'short',
