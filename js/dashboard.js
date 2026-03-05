@@ -1,14 +1,16 @@
-// Call authentication function, load contacts, and set up event listeners when the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', function () {
-
+document.addEventListener('DOMContentLoaded', function() {
     checkAuthentication();
-    loadAllContacts();
+    loadAllContacts(); // Load page 1 by default
     setupEventListeners();
 });
 
+// Global variables
 let allContacts = [];
+let currentPage = 1;
+let perPage = 10;
+let totalPages = 1;
+let currentSearchTerm = '';
 
-// Check if user is authenticated by looking for a token in sessionStorage
 function checkAuthentication() {
     const token = sessionStorage.getItem('userId');
     if (!token) {
@@ -17,15 +19,15 @@ function checkAuthentication() {
     }
 }
 
-// Set up event listeners for search input, filter select, and add contact button
 function setupEventListeners() {
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         let searchTimeout;
-        searchInput.addEventListener('input', function (event) {
+        searchInput.addEventListener('input', function(event) {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
-                handleSearch(event);
+                currentSearchTerm = event.target.value.trim();
+                loadAllContacts(1); // Reset to page 1 on new search
             }, 300);
         });
     }
@@ -41,55 +43,34 @@ function setupEventListeners() {
     }
 }
 
-// Call search API with the search term and update the contact list based on the response
-async function handleSearch(event) {
-    const searchTerm = event.target.value.trim();
-
+// Updated to support pagination
+async function loadAllContacts(page = 1) {
     try {
         showLoadingState();
-
-        const response = await fetch(`../api/searchContacts.php?q=${encodeURIComponent(searchTerm)}`, {
-            method: 'GET',
-            headers: {
-                'Authorization': 'Bearer ' + sessionStorage.getItem('userId')
-            }
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            displayContacts(data.contacts);
-        } else {
-            showMessage('Search failed', 'error');
-        }
-    } catch (error) {
-        console.error('Error searching contacts:', error);
-        showMessage('Error searching contacts', 'error');
-    } finally {
-        hideLoadingState();
-    }
-}
-
-// Load all contacts for the authenticated user by calling the search API with an empty query and update the contact list based on the response
-async function loadAllContacts() {
-    try {
-        showLoadingState();
-
+        
         const userId = sessionStorage.getItem('userId');
         if (!userId) {
             console.error('No userId in session');
             window.location.href = './index.html';
             return;
         }
-        const response = await fetch(`/api/searchContacts.php?userId=${userId}&q=`, {
+        
+        // Add page and limit parameters
+        const response = await fetch(`/api/searchContacts.php?userId=${userId}&q=${encodeURIComponent(currentSearchTerm)}&page=${page}&limit=${perPage}`, {
             method: 'GET'
         });
-
+        
         const data = await response.json();
-
+        
         if (data.success) {
             allContacts = data.contacts;
-            displayContacts(allContacts);
+            displayContacts(data.contacts);
+            
+            // Update pagination if data includes it
+            if (data.pagination) {
+                updatePagination(data.pagination);
+                currentPage = page;
+            }
         } else {
             showMessage('Failed to load contacts', 'error');
         }
@@ -101,28 +82,11 @@ async function loadAllContacts() {
     }
 }
 
-// Convert UTC date string from the database to a more readable local date format
-function convertToLocalDate(utc) {
-    if (!utc) return 'N/A';
-
-    const formatDate = utc.replace(' ', 'T');
-    const date = new Date(formatDate + "Z");
-    
-    return date.toLocaleString(undefined, {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit'
-    });
-}
-
-// Display the list of contacts in the table, showing a message if no contacts are found
 function displayContacts(contacts) {
     const tbody = document.querySelector('.contact-table tbody');
-
+    
     if (!tbody) return;
-
+    
     if (contacts.length === 0) {
         tbody.innerHTML = `
             <tr>
@@ -133,63 +97,121 @@ function displayContacts(contacts) {
         `;
         return;
     }
-
+    
     tbody.innerHTML = contacts.map(contact => `
         <tr data-contact-id="${contact.id}">
             <td>${escapeHtml(contact.first_name + ' ' + (contact.last_name || ''))}</td>
             <td>${escapeHtml(contact.phone || 'N/A')}</td>
             <td>${escapeHtml(contact.email || 'N/A')}</td>
-            <td>${escapeHtml(convertToLocalDate(contact.created_at))}</td>
+            <td>${formatDate(contact.created_at)}</td>
             <td>
-                <button class="btn btn-sm btn-primary" onclick="viewContact(${contact.id})">View</button>
-                <button class="btn btn-sm btn-secondary" onclick="editContact(${contact.id})">Edit</button>
-                <button class="btn btn-sm btn-danger" onclick="deleteContact(${contact.id})">Delete</button>
+                <button class="btn btn-sm btn-primary" onclick="viewContact(${contact.id})">
+                    <i class="bi bi-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-warning" onclick="editContact(${contact.id})">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="deleteContact(${contact.id})">
+                    <i class="bi bi-trash"></i>
+                </button>
             </td>
         </tr>
     `).join('');
 }
 
-// Call search API with the search term and update the contact list based on the response
-async function handleSearch(event) {
-    const searchTerm = event.target.value.trim();
-
-    try {
-        showLoadingState();
-
-        const userId = sessionStorage.getItem('userId');
-        if (!userId) {
-            window.location.href = './index.html';
-            return;
+// NEW: Update Bootstrap Pagination
+function updatePagination(pagination) {
+    const paginationEl = document.querySelector('.pagination');
+    if (!paginationEl) return;
+    
+    totalPages = pagination.total_pages;
+    
+    // Hide pagination if only 1 page or no contacts
+    if (totalPages <= 1) {
+        paginationEl.parentElement.style.display = 'none';
+        return;
+    }
+    
+    paginationEl.parentElement.style.display = 'block';
+    
+    let html = '';
+    
+    // Previous button
+    html += `
+        <li class="page-item ${!pagination.has_previous ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="goToPage(${currentPage - 1}); return false;">Previous</a>
+        </li>
+    `;
+    
+    // Page numbers
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    // Adjust start if we're near the end
+    if (endPage - startPage < maxVisiblePages - 1) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+    
+    // First page + ellipsis
+    if (startPage > 1) {
+        html += `<li class="page-item"><a class="page-link" href="#" onclick="goToPage(1); return false;">1</a></li>`;
+        if (startPage > 2) {
+            html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
         }
-
-        const response = await fetch(`/api/searchContacts.php?userId=${userId}&q=${encodeURIComponent(searchTerm)}`, {
-            method: 'GET'
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            allContacts = data.contacts;
-            displayContacts(data.contacts);
-        } else {
-            showMessage('Search failed', 'error');
+    }
+    
+    // Page numbers
+    for (let i = startPage; i <= endPage; i++) {
+        html += `
+            <li class="page-item ${i === currentPage ? 'active' : ''}">
+                <a class="page-link" href="#" onclick="goToPage(${i}); return false;">${i}</a>
+            </li>
+        `;
+    }
+    
+    // Ellipsis + last page
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
         }
-    } catch (error) {
-        console.error('Error searching contacts:', error);
-        showMessage('Error searching contacts', 'error');
-    } finally {
-        hideLoadingState();
+        html += `<li class="page-item"><a class="page-link" href="#" onclick="goToPage(${totalPages}); return false;">${totalPages}</a></li>`;
+    }
+    
+    // Next button
+    html += `
+        <li class="page-item ${!pagination.has_next ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="goToPage(${currentPage + 1}); return false;">Next</a>
+        </li>
+    `;
+    
+    paginationEl.innerHTML = html;
+}
+
+// NEW: Navigate to specific page
+function goToPage(page) {
+    if (page >= 1 && page <= totalPages && page !== currentPage) {
+        loadAllContacts(page);
     }
 }
 
-// Show a modal form to add a new contact, which will call the addContact function on submit
+// NEW: Format date helper
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+    });
+}
+
 function showAddContactModal() {
     const modal = createContactModal('Add New Contact', {});
     document.body.appendChild(modal);
     modal.style.display = 'block';
 }
 
-// Create a modal form for adding or editing a contact, pre-filling the form fields if a contact object is provided
 function createContactModal(title, contact = {}) {
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
@@ -225,8 +247,7 @@ function createContactModal(title, contact = {}) {
             </form>
         </div>
     `;
-
-    // Add event listener to the form submit event to call either addContact or updateContact based on whether a contact ID is present
+        
     modal.querySelector('form').addEventListener('submit', (e) => {
         e.preventDefault();
         if (contact.id) {
@@ -235,11 +256,10 @@ function createContactModal(title, contact = {}) {
             addContact(new FormData(e.target));
         }
     });
-
+    
     return modal;
 }
 
-// Call add contact API with the form data and update the contact list based on the response, showing a success or error message accordingly
 async function addContact(formData) {
     try {
         const userId = sessionStorage.getItem('userId');
@@ -248,7 +268,7 @@ async function addContact(formData) {
             window.location.href = './index.html';
             return;
         }
-
+        
         const contactData = {
             first_name: formData.get('first_name'),
             last_name: formData.get('last_name'),
@@ -258,7 +278,7 @@ async function addContact(formData) {
             notes: formData.get('notes'),
             user_id: parseInt(userId)
         };
-
+        
         const response = await fetch('/api/addContact.php', {
             method: 'POST',
             headers: {
@@ -266,14 +286,13 @@ async function addContact(formData) {
             },
             body: JSON.stringify(contactData)
         });
-
+        
         const data = await response.json();
-
+        
         if (data.success) {
             showMessage('Contact added successfully!', 'success');
             closeModal();
-            loadAllContacts();
-            //loadDashboardStats();
+            loadAllContacts(currentPage); // Reload current page
         } else {
             showMessage(data.message || 'Failed to add contact', 'error');
         }
@@ -283,16 +302,15 @@ async function addContact(formData) {
     }
 }
 
-// Show a modal with the contact details, allowing the user to view and edit the contact information
 async function viewContact(contactId) {
     try {
         const contact = allContacts.find(c => c.id === contactId);
-
+        
         if (!contact) {
             showMessage('Contact not found', 'error');
             return;
         }
-
+        
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
         modal.innerHTML = `
@@ -305,7 +323,7 @@ async function viewContact(contactId) {
                     <p><strong>Name:</strong> ${escapeHtml(contact.first_name + ' ' + (contact.last_name || ''))}</p>
                     <p><strong>Email:</strong> ${escapeHtml(contact.email || 'N/A')}</p>
                     <p><strong>Phone:</strong> ${escapeHtml(contact.phone || 'N/A')}</p>
-                    <p><strong>Date Created:</strong> ${escapeHtml(convertToLocalDate(contact.created_at) || 'N/A')}</p>
+                    <p><strong>Created:</strong> ${formatDate(contact.created_at)}</p>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" onclick="closeModal()">Close</button>
@@ -313,7 +331,7 @@ async function viewContact(contactId) {
                 </div>
             </div>
         `;
-
+        
         document.body.appendChild(modal);
         modal.style.display = 'block';
     } catch (error) {
@@ -322,16 +340,15 @@ async function viewContact(contactId) {
     }
 }
 
-// Show a modal form to edit an existing contact, pre-filling the form fields with the contact's current information
 async function editContact(contactId) {
     try {
         const contact = allContacts.find(c => c.id === contactId);
-
+        
         if (!contact) {
             showMessage('Contact not found', 'error');
             return;
         }
-
+        
         const modal = createContactModal('Edit Contact', contact);
         document.body.appendChild(modal);
         modal.style.display = 'block';
@@ -341,19 +358,16 @@ async function editContact(contactId) {
     }
 }
 
-// Call update contact API with the form data and update the contact list based on the response, showing a success or error message accordingly
 async function updateContact(contactId, formData) {
-    try {
+   try {
         const contactData = {
             id: contactId,
             first_name: formData.get('first_name'),
             last_name: formData.get('last_name'),
             email: formData.get('email'),
             phone: formData.get('phone'),
-            company: formData.get('company'),
-            notes: formData.get('notes'),
         };
-
+        
         const response = await fetch('../api/updateContact.php', {
             method: 'POST',
             headers: {
@@ -362,13 +376,13 @@ async function updateContact(contactId, formData) {
             },
             body: JSON.stringify(contactData)
         });
-
+        
         const data = await response.json();
-
+        
         if (data.success) {
             showMessage('Contact updated successfully!', 'success');
             closeModal();
-            loadAllContacts();
+            loadAllContacts(currentPage); // Reload current page
         } else {
             showMessage(data.message || 'Failed to update contact', 'error');
         }
@@ -378,36 +392,34 @@ async function updateContact(contactId, formData) {
     }
 }
 
-// Show a confirmation dialog before deleting a contact, and call the delete API if the user confirms
 function deleteContact(contactId) {
     if (!confirm(`Are you sure you want to delete this contact?`)) {
         return;
     }
-
+    
     performDelete(contactId);
 }
 
-// Call delete contact API with the contact ID and update the contact list based on the response, showing a success or error message accordingly
 async function performDelete(contactId) {
     try {
-        const userId = sessionStorage.getItem('userId');
-
+        const userId = sessionStorage.getItem('userId'); 
+        
         const response = await fetch('/api/deleteContact.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                contactid: contactId,
-                userid: parseInt(userId)
+            body: JSON.stringify({ 
+                contactid: contactId,  
+                userid: parseInt(userId)  
             })
         });
-
+        
         const data = await response.json();
-
+        
         if (data.success) {
             showMessage('Contact deleted successfully!', 'success');
-            loadAllContacts();
+            loadAllContacts(currentPage); // Reload current page
         } else {
             showMessage(data.error || 'Failed to delete contact', 'error');
         }
@@ -417,7 +429,6 @@ async function performDelete(contactId) {
     }
 }
 
-// Remove the modal from the DOM to close it
 function closeModal() {
     const modal = document.querySelector('.modal-overlay');
     if (modal) {
@@ -425,15 +436,16 @@ function closeModal() {
     }
 }
 
-// Show a loading spinner in the contact table while contacts are being fetched from the API
 function showLoadingState() {
     const tbody = document.querySelector('.contact-table tbody');
     if (tbody) {
         tbody.innerHTML = `
             <tr>
                 <td colspan="5" style="text-align: center; padding: 40px;">
-                    <div class="spinner"></div>
-                    Loading contacts...
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading contacts...</p>
                 </td>
             </tr>
         `;
@@ -443,8 +455,7 @@ function showLoadingState() {
 function hideLoadingState() {
     // Loading state will be replaced by actual data
 }
- 
-// Escape HTML special characters to prevent XSS attacks when displaying user-generated content
+
 function escapeHtml(text) {
     const map = {
         '&': '&amp;',
@@ -456,14 +467,12 @@ function escapeHtml(text) {
     return text.toString().replace(/[&<>"']/g, m => map[m]);
 }
 
-// Display a temporary message on the screen, styled differently based on whether it's a success or error message, and automatically hide it after a few seconds
 function showMessage(message, type) {
-
     const existingMessage = document.querySelector('.alert-message');
     if (existingMessage) {
         existingMessage.remove();
     }
-
+    
     const messageDiv = document.createElement('div');
     messageDiv.className = `alert-message alert-${type}`;
     messageDiv.textContent = message;
@@ -476,11 +485,11 @@ function showMessage(message, type) {
         font-weight: 500;
         z-index: 10000;
         animation: slideIn 0.3s ease-out;
-        ${type === 'error'
-            ? 'background-color: #fee; color: #c00; border: 1px solid #fcc;'
+        ${type === 'error' 
+            ? 'background-color: #fee; color: #c00; border: 1px solid #fcc;' 
             : 'background-color: #efe; color: #060; border: 1px solid #cfc;'}
     `;
-
+    
     document.body.appendChild(messageDiv);
 
     setTimeout(() => {
@@ -489,7 +498,10 @@ function showMessage(message, type) {
     }, 5000);
 }
 
-// Clear session storage and redirect to the login page when the user clicks the logout button
+function handleFilter(event) {
+    // Placeholder for filter functionality
+}
+
 function logout() {
     sessionStorage.clear();
     window.location.href = './index.html';
