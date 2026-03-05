@@ -1,5 +1,5 @@
 <?php
-// tells the client that we’re sending json back
+// tells the client that we're sending json back
 header("Content-Type: application/json");
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
@@ -12,6 +12,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $search = $_GET['q'] ?? $_GET['search'] ?? "";
     $userId = $_GET['userId'] ?? null;
+    
+    // NEW: Get pagination parameters
+    $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+    $limit = isset($_GET['limit']) ? max(1, min(100, intval($_GET['limit']))) : 10;
 } else {
     // grabs the raw request body
     $raw = file_get_contents("php://input");
@@ -26,9 +30,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // pull out what we need from the request
     $userId = $data["UserID"] ?? $data["userId"] ?? $data["userID"] ?? null;
     $search = $data["Search"] ?? $data["search"] ?? "";
+    
+    // NEW: Get pagination parameters from POST body
+    $page = isset($data['page']) ? max(1, intval($data['page'])) : 1;
+    $limit = isset($data['limit']) ? max(1, min(100, intval($data['limit']))) : 10;
 }
 
-// can’t search without knowing the user
+// can't search without knowing the user
 if ($userId === null) {
     http_response_code(400);
     echo json_encode(["error" => "missing user id"]);
@@ -38,6 +46,9 @@ if ($userId === null) {
 // basic cleanup
 $userId = (int)$userId;
 $search = trim((string)$search);
+
+// NEW: Calculate offset for pagination
+$offset = ($page - 1) * $limit;
 
 // connect to the database
 $ENV = parse_ini_file(__DIR__ . '/../.env');
@@ -53,7 +64,35 @@ if ($conn->connect_error) {
 // wrap the search term so we can do partial matches
 $like = "%" . $search . "%";
 
-// sql to find matching contacts for this user
+// NEW: First, get total count for pagination metadata
+$countSql = "
+SELECT COUNT(*) as total
+FROM Contacts
+WHERE UserID = ?
+  AND (
+    FirstName LIKE ?
+    OR LastName LIKE ?
+    OR Email LIKE ?
+    OR PhoneNumber LIKE ?
+  )
+";
+
+$countStmt = $conn->prepare($countSql);
+if (!$countStmt) {
+    http_response_code(500);
+    echo json_encode(["error" => "count query prep failed"]);
+    $conn->close();
+    exit();
+}
+
+$countStmt->bind_param("issss", $userId, $like, $like, $like, $like);
+$countStmt->execute();
+$countResult = $countStmt->get_result();
+$totalContacts = $countResult->fetch_assoc()['total'];
+$totalPages = ceil($totalContacts / $limit);
+$countStmt->close();
+
+// sql to find matching contacts for this user with LIMIT and OFFSET
 $sql = "
 SELECT
   ID,
@@ -72,6 +111,7 @@ WHERE UserID = ?
     OR PhoneNumber LIKE ?
   )
 ORDER BY LastName, FirstName
+LIMIT ? OFFSET ?
 ";
 
 $stmt = $conn->prepare($sql);
@@ -84,8 +124,8 @@ if (!$stmt) {
     exit();
 }
 
-// bind values to the placeholders
-$stmt->bind_param("issss", $userId, $like, $like, $like, $like);
+// bind values to the placeholders (added limit and offset)
+$stmt->bind_param("issssii", $userId, $like, $like, $like, $like, $limit, $offset);
 
 // runs the query
 if (!$stmt->execute()) {
@@ -111,8 +151,19 @@ while ($row = $result->fetch_assoc()) {
     ];
 }
 
-// send results back to the frontend
-echo json_encode(["success" => true, "contacts" => $contacts]);
+// NEW: Send results back with pagination metadata
+echo json_encode([
+    "success" => true, 
+    "contacts" => $contacts,
+    "pagination" => [
+        "current_page" => $page,
+        "total_pages" => $totalPages,
+        "total_contacts" => $totalContacts,
+        "per_page" => $limit,
+        "has_next" => $page < $totalPages,
+        "has_previous" => $page > 1
+    ]
+]);
 
 // cleanup
 $stmt->close();
