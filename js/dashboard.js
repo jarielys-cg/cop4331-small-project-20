@@ -1,15 +1,15 @@
 document.addEventListener('DOMContentLoaded', function() {
     checkAuthentication();
-    loadAllContacts(); // Load page 1 by default
+    loadAllContacts();
     setupEventListeners();
 });
 
-// Global variables
 let allContacts = [];
 let currentPage = 1;
 let perPage = 10;
 let totalPages = 1;
 let currentSearchTerm = '';
+let currentView = 'all';
 
 function checkAuthentication() {
     const token = sessionStorage.getItem('userId');
@@ -27,7 +27,7 @@ function setupEventListeners() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 currentSearchTerm = event.target.value.trim();
-                loadAllContacts(1); // Reset to page 1 on new search
+                loadAllContacts(1);
             }, 300);
         });
     }
@@ -41,32 +41,62 @@ function setupEventListeners() {
     if (addButton) {
         addButton.addEventListener('click', showAddContactModal);
     }
+
+    const allContactsItem = document.getElementById('sidebarAll');
+    if (allContactsItem) {
+        allContactsItem.addEventListener('click', () => {
+            currentView = 'all';
+            updateSidebarActive(allContactsItem);
+            document.querySelector('.section-title').textContent = 'All Contacts';
+            displayContacts(allContacts);
+        });
+    }
+
+    const favoritesItem = document.getElementById('sidebarFavorites');
+    if (favoritesItem) {
+        favoritesItem.addEventListener('click', () => {
+            currentView = 'favorites';
+            updateSidebarActive(favoritesItem);
+            document.querySelector('.section-title').textContent = 'Favorites';
+            displayContacts(allContacts.filter(c => c.is_favorite));
+        });
+    }
 }
 
-// Updated to support pagination
+function updateSidebarActive(activeItem) {
+    document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+    activeItem.classList.add('active');
+}
+
+function refreshStats() {
+    const totalEl = document.getElementById('totalContacts');
+    const favEl = document.getElementById('totalFavorites');
+    if (totalEl) totalEl.textContent = allContacts.length;
+    if (favEl) favEl.textContent = allContacts.filter(c => c.is_favorite).length;
+}
+
 async function loadAllContacts(page = 1) {
     try {
         showLoadingState();
-        
+
         const userId = sessionStorage.getItem('userId');
         if (!userId) {
             console.error('No userId in session');
             window.location.href = './index.html';
             return;
         }
-        
-        // Add page and limit parameters
+
         const response = await fetch(`/api/searchContacts.php?userId=${userId}&q=${encodeURIComponent(currentSearchTerm)}&page=${page}&limit=${perPage}`, {
             method: 'GET'
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             allContacts = data.contacts;
+            refreshStats();
             displayContacts(data.contacts);
-            
-            // Update pagination if data includes it
+
             if (data.pagination) {
                 updatePagination(data.pagination);
                 currentPage = page;
@@ -84,27 +114,34 @@ async function loadAllContacts(page = 1) {
 
 function displayContacts(contacts) {
     const tbody = document.querySelector('.contact-table tbody');
-    
+
     if (!tbody) return;
-    
+
     if (contacts.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="5" style="text-align: center; padding: 40px;">
+                <td colspan="6" style="text-align: center; padding: 40px;">
                     No contacts found. Add your first contact!
                 </td>
             </tr>
         `;
         return;
     }
-    
-    tbody.innerHTML = contacts.map(contact => `
+
+    tbody.innerHTML = contacts.map(contact => {
+        const isFav = contact.is_favorite;
+        const heartClass = isFav ? 'bi-heart-fill fav-active' : 'bi-heart';
+        const favTitle = isFav ? 'Remove from Favorites' : 'Add to Favorites';
+        return `
         <tr data-contact-id="${contact.id}">
             <td>${escapeHtml(contact.first_name + ' ' + (contact.last_name || ''))}</td>
             <td>${escapeHtml(contact.phone || 'N/A')}</td>
             <td>${escapeHtml(contact.email || 'N/A')}</td>
             <td>${formatDate(contact.created_at)}</td>
             <td>
+                <button class="btn-fav" title="${favTitle}" onclick="toggleFavorite(${contact.id})">
+                    <i class="bi ${heartClass}"></i>
+                </button>
                 <button class="btn btn-sm btn-primary" onclick="viewContact(${contact.id})">
                     <i class="bi bi-eye"></i>
                 </button>
@@ -116,52 +153,77 @@ function displayContacts(contacts) {
                 </button>
             </td>
         </tr>
-    `).join('');
+        `;
+    }).join('');
 }
 
-// NEW: Update Bootstrap Pagination
+async function toggleFavorite(contactId) {
+    const contact = allContacts.find(c => c.id === contactId);
+    if (!contact) return;
+
+    const userId = sessionStorage.getItem('userId') || 1;
+
+    try {
+        const response = await fetch('/api/ToggleFavorite.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ContactID: contactId, UserID: parseInt(userId) })
+        });
+        const data = await response.json();
+        if (data.success !== undefined) {
+            contact.is_favorite = data.isFavorite;
+        } else {
+            contact.is_favorite = !contact.is_favorite;
+        }
+    } catch (e) {
+        contact.is_favorite = !contact.is_favorite;
+    }
+
+    refreshStats();
+
+    if (currentView === 'favorites') {
+        displayContacts(allContacts.filter(c => c.is_favorite));
+    } else {
+        displayContacts(allContacts);
+    }
+}
+
 function updatePagination(pagination) {
     const paginationEl = document.querySelector('.pagination');
     if (!paginationEl) return;
-    
+
     totalPages = pagination.total_pages;
-    
-    // Hide pagination if only 1 page or no contacts
+
     if (totalPages <= 1) {
         paginationEl.parentElement.style.display = 'none';
         return;
     }
-    
+
     paginationEl.parentElement.style.display = 'block';
-    
+
     let html = '';
-    
-    // Previous button
+
     html += `
         <li class="page-item ${!pagination.has_previous ? 'disabled' : ''}">
             <a class="page-link" href="#" onclick="goToPage(${currentPage - 1}); return false;">Previous</a>
         </li>
     `;
-    
-    // Page numbers
+
     const maxVisiblePages = 5;
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-    
-    // Adjust start if we're near the end
+
     if (endPage - startPage < maxVisiblePages - 1) {
         startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
-    
-    // First page + ellipsis
+
     if (startPage > 1) {
         html += `<li class="page-item"><a class="page-link" href="#" onclick="goToPage(1); return false;">1</a></li>`;
         if (startPage > 2) {
             html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
         }
     }
-    
-    // Page numbers
+
     for (let i = startPage; i <= endPage; i++) {
         html += `
             <li class="page-item ${i === currentPage ? 'active' : ''}">
@@ -169,40 +231,36 @@ function updatePagination(pagination) {
             </li>
         `;
     }
-    
-    // Ellipsis + last page
+
     if (endPage < totalPages) {
         if (endPage < totalPages - 1) {
             html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
         }
         html += `<li class="page-item"><a class="page-link" href="#" onclick="goToPage(${totalPages}); return false;">${totalPages}</a></li>`;
     }
-    
-    // Next button
+
     html += `
         <li class="page-item ${!pagination.has_next ? 'disabled' : ''}">
             <a class="page-link" href="#" onclick="goToPage(${currentPage + 1}); return false;">Next</a>
         </li>
     `;
-    
+
     paginationEl.innerHTML = html;
 }
 
-// NEW: Navigate to specific page
 function goToPage(page) {
     if (page >= 1 && page <= totalPages && page !== currentPage) {
         loadAllContacts(page);
     }
 }
 
-// NEW: Format date helper
 function formatDate(dateString) {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
     });
 }
 
@@ -247,7 +305,7 @@ function createContactModal(title, contact = {}) {
             </form>
         </div>
     `;
-        
+
     modal.querySelector('form').addEventListener('submit', (e) => {
         e.preventDefault();
         if (contact.id) {
@@ -256,7 +314,7 @@ function createContactModal(title, contact = {}) {
             addContact(new FormData(e.target));
         }
     });
-    
+
     return modal;
 }
 
@@ -268,7 +326,7 @@ async function addContact(formData) {
             window.location.href = './index.html';
             return;
         }
-        
+
         const contactData = {
             first_name: formData.get('first_name'),
             last_name: formData.get('last_name'),
@@ -278,7 +336,7 @@ async function addContact(formData) {
             notes: formData.get('notes'),
             user_id: parseInt(userId)
         };
-        
+
         const response = await fetch('/api/addContact.php', {
             method: 'POST',
             headers: {
@@ -286,13 +344,13 @@ async function addContact(formData) {
             },
             body: JSON.stringify(contactData)
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             showMessage('Contact added successfully!', 'success');
             closeModal();
-            loadAllContacts(currentPage); // Reload current page
+            loadAllContacts(currentPage);
         } else {
             showMessage(data.message || 'Failed to add contact', 'error');
         }
@@ -305,12 +363,12 @@ async function addContact(formData) {
 async function viewContact(contactId) {
     try {
         const contact = allContacts.find(c => c.id === contactId);
-        
+
         if (!contact) {
             showMessage('Contact not found', 'error');
             return;
         }
-        
+
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
         modal.innerHTML = `
@@ -331,7 +389,7 @@ async function viewContact(contactId) {
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(modal);
         modal.style.display = 'block';
     } catch (error) {
@@ -343,12 +401,12 @@ async function viewContact(contactId) {
 async function editContact(contactId) {
     try {
         const contact = allContacts.find(c => c.id === contactId);
-        
+
         if (!contact) {
             showMessage('Contact not found', 'error');
             return;
         }
-        
+
         const modal = createContactModal('Edit Contact', contact);
         document.body.appendChild(modal);
         modal.style.display = 'block';
@@ -367,7 +425,7 @@ async function updateContact(contactId, formData) {
             email: formData.get('email'),
             phone: formData.get('phone'),
         };
-        
+
         const response = await fetch('../api/updateContact.php', {
             method: 'POST',
             headers: {
@@ -376,13 +434,13 @@ async function updateContact(contactId, formData) {
             },
             body: JSON.stringify(contactData)
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             showMessage('Contact updated successfully!', 'success');
             closeModal();
-            loadAllContacts(currentPage); // Reload current page
+            loadAllContacts(currentPage);
         } else {
             showMessage(data.message || 'Failed to update contact', 'error');
         }
@@ -396,30 +454,30 @@ function deleteContact(contactId) {
     if (!confirm(`Are you sure you want to delete this contact?`)) {
         return;
     }
-    
+
     performDelete(contactId);
 }
 
 async function performDelete(contactId) {
     try {
-        const userId = sessionStorage.getItem('userId'); 
-        
+        const userId = sessionStorage.getItem('userId');
+
         const response = await fetch('/api/deleteContact.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ 
-                contactid: contactId,  
-                userid: parseInt(userId)  
+            body: JSON.stringify({
+                contactid: contactId,
+                userid: parseInt(userId)
             })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             showMessage('Contact deleted successfully!', 'success');
-            loadAllContacts(currentPage); // Reload current page
+            loadAllContacts(currentPage);
         } else {
             showMessage(data.error || 'Failed to delete contact', 'error');
         }
@@ -472,7 +530,7 @@ function showMessage(message, type) {
     if (existingMessage) {
         existingMessage.remove();
     }
-    
+
     const messageDiv = document.createElement('div');
     messageDiv.className = `alert-message alert-${type}`;
     messageDiv.textContent = message;
@@ -485,11 +543,11 @@ function showMessage(message, type) {
         font-weight: 500;
         z-index: 10000;
         animation: slideIn 0.3s ease-out;
-        ${type === 'error' 
-            ? 'background-color: #fee; color: #c00; border: 1px solid #fcc;' 
+        ${type === 'error'
+            ? 'background-color: #fee; color: #c00; border: 1px solid #fcc;'
             : 'background-color: #efe; color: #060; border: 1px solid #cfc;'}
     `;
-    
+
     document.body.appendChild(messageDiv);
 
     setTimeout(() => {
